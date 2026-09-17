@@ -1,0 +1,42 @@
+import { RelatedProductsSkeleton } from "@/components/products/related-products";
+
+export function ProductDetailSkeleton() {
+  return (
+    <div className="flex flex-col gap-10" role="status" aria-label="Produkt wird geladen">
+      <div className="skeleton h-4 w-64" />
+
+      <div className="grid gap-8 lg:grid-cols-[55fr_45fr] lg:gap-12">
+        <div className="flex flex-col gap-3">
+          <div className="skeleton aspect-square rounded-xl" />
+          <div className="flex gap-2">
+            {Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className="skeleton size-16 sm:size-20" />
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <div className="skeleton h-4 w-24" />
+            <div className="skeleton h-9 w-4/5" />
+          </div>
+          <div className="skeleton h-5 w-40" />
+          <div className="skeleton h-9 w-36" />
+          <div className="skeleton h-4 w-32" />
+          <div className="flex flex-col gap-2">
+            <div className="skeleton h-4 w-full" />
+            <div className="skeleton h-4 w-full" />
+            <div className="skeleton h-4 w-2/3" />
+          </div>
+          <div className="skeleton h-28 w-full rounded-xl" />
+        </div>
+      </div>
+
+      <RelatedProductsSkeleton />
+    </div>
+  );
+}
+
+export default function ProductLoading() {
+  return <ProductDetailSkeleton />;
+}
