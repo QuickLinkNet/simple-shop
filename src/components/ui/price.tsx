@@ -1,4 +1,8 @@
+"use client";
+
+import { useLocale } from "@/components/i18n/locale-provider";
 import { formatPrice, originalPrice } from "@/lib/format";
+import { t } from "@/lib/i18n";
 
 interface PriceProps {
   price: number;
@@ -8,6 +12,7 @@ interface PriceProps {
 
 /** Zeigt Preis, bei Rabatt zusätzlich den durchgestrichenen Originalpreis. */
 export function Price({ price, discountPercentage, size = "sm" }: PriceProps) {
+  const { locale, dict } = useLocale();
   const hasDiscount = discountPercentage >= 1;
   const original = originalPrice(price, discountPercentage);
 
@@ -20,17 +25,17 @@ export function Price({ price, discountPercentage, size = "sm" }: PriceProps) {
             : "text-lg font-bold tracking-tight"
         }
       >
-        {formatPrice(price)}
+        {formatPrice(price, locale)}
       </span>
       {hasDiscount && (
         <>
           <span
             className={`text-ink-muted line-through ${size === "lg" ? "text-lg" : "text-sm"}`}
           >
-            {formatPrice(original)}
+            {formatPrice(original, locale)}
           </span>
           <span className="sr-only">
-            , {Math.round(discountPercentage)} % Rabatt
+            , {t(dict.product.discount, { percent: Math.round(discountPercentage) })}
           </span>
         </>
       )}

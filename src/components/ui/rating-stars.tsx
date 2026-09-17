@@ -1,3 +1,9 @@
+"use client";
+
+import { useLocale } from "@/components/i18n/locale-provider";
+import { formatNumber } from "@/lib/format";
+import { plural, t } from "@/lib/i18n";
+
 interface RatingStarsProps {
   rating: number;
   /** Anzahl Bewertungen, optional */
@@ -8,29 +14,19 @@ interface RatingStarsProps {
 
 const MAX = 5;
 
-export function RatingStars({
-  rating,
-  count,
-  variant = "compact",
-}: RatingStarsProps) {
-  const label = `${rating.toFixed(1)} von ${MAX} Sternen${
-    count !== undefined ? `, ${count} Bewertungen` : ""
-  }`;
-  const display = rating.toFixed(1).replace(".", ",");
+export function RatingStars({ rating, count, variant = "compact" }: RatingStarsProps) {
+  const { locale, dict } = useLocale();
+  const display = formatNumber(rating, locale);
+  const reviews =
+    count !== undefined ? plural(count, dict.product.reviewsOne, dict.product.reviewsMany) : "";
+  const label = `${t(dict.product.ratingLabel, { rating: display })}${reviews ? `, ${reviews}` : ""}`;
 
   if (variant === "compact") {
     return (
-      <span
-        className="flex items-center gap-1 text-sm"
-        role="img"
-        aria-label={label}
-        title={label}
-      >
+      <span className="flex items-center gap-1 text-sm" role="img" aria-label={label} title={label}>
         <Star fill={1} size={15} />
         <span className="font-medium">{display}</span>
-        {count !== undefined && (
-          <span className="text-ink-muted">({count})</span>
-        )}
+        {count !== undefined && <span className="text-ink-muted">({count})</span>}
       </span>
     );
   }
@@ -38,23 +34,14 @@ export function RatingStars({
   const rounded = Math.round(rating * 2) / 2;
 
   return (
-    <span
-      className="flex items-center gap-2 text-sm"
-      role="img"
-      aria-label={label}
-      title={label}
-    >
+    <span className="flex items-center gap-2 text-sm" role="img" aria-label={label} title={label}>
       <span className="flex gap-0.5">
         {Array.from({ length: MAX }, (_, i) => (
           <Star key={i} fill={Math.min(Math.max(rounded - i, 0), 1)} size={20} />
         ))}
       </span>
       <span className="font-semibold">{display}</span>
-      {count !== undefined && (
-        <span className="text-ink-muted">
-          · {count} {count === 1 ? "Bewertung" : "Bewertungen"}
-        </span>
-      )}
+      {reviews && <span className="text-ink-muted">· {reviews}</span>}
     </span>
   );
 }

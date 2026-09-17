@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import { sortToApi, type SortOption } from "@/lib/products/search-params";
 import {
   PRODUCT_SUMMARY_FIELDS,
   type CategorySlug,
@@ -57,15 +58,16 @@ export interface ProductQuery {
   page: number;
   category?: CategorySlug;
   q?: string;
+  sort?: SortOption;
 }
 
 /**
  * Produktliste für die PLP.
  *
  * DummyJSON kann Suche und Kategorie nicht kombinieren. Sind beide gesetzt,
- * wird die komplette Suchtreffermenge geladen (limit=0), serverseitig nach
- * Kategorie gefiltert und manuell paginiert. Die Datenmenge ist klein
- * (< 200 Produkte) und das Ergebnis wird gecacht – daher vertretbar.
+ * wird die komplette (bereits sortierte) Suchtreffermenge geladen (limit=0),
+ * serverseitig nach Kategorie gefiltert und manuell paginiert. Die Datenmenge
+ * ist klein (< 200 Produkte) und das Ergebnis wird gecacht – daher vertretbar.
  */
 export async function getProducts(
   query: ProductQuery,
@@ -73,14 +75,16 @@ export async function getProducts(
   "use cache";
   cacheLife("hours");
 
-  const { page, category, q } = query;
+  const { page, category, q, sort = "recommended" } = query;
   const skip = (page - 1) * PAGE_SIZE;
+  const sortParams = sortToApi(sort);
 
   if (q && category) {
     const all = await request<ProductListResponse>("/products/search", {
       q,
       limit: 0,
       select: SUMMARY_SELECT,
+      ...sortParams,
     });
     const filtered = (all?.products ?? []).filter(
       (p) => p.category === category,
@@ -104,6 +108,7 @@ export async function getProducts(
     limit: PAGE_SIZE,
     skip,
     select: SUMMARY_SELECT,
+    ...sortParams,
   });
 
   return data ?? { products: [], total: 0, skip, limit: PAGE_SIZE };
@@ -129,7 +134,7 @@ export async function getCategories(): Promise<CategorySlug[]> {
 export async function getRelatedProducts(
   category: CategorySlug,
   excludeId: number,
-  limit = 4,
+  limit = 10,
 ): Promise<ProductSummary[]> {
   "use cache";
   cacheLife("hours");

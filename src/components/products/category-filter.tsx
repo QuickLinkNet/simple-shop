@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { buildProductsHref } from "@/lib/products/search-params";
-import { formatCategory } from "@/lib/format";
+import { useLocale } from "@/components/i18n/locale-provider";
+import { categoryLabel } from "@/lib/i18n";
+import {
+  buildProductsHref,
+  parseProductFilters,
+} from "@/lib/products/search-params";
 import type { CategorySlug } from "@/lib/types/product";
 
 interface CategoryFilterProps {
@@ -12,12 +16,14 @@ interface CategoryFilterProps {
 
 /**
  * Kategorie-Chips als Links: Deep-Link-fähig, prefetchbar, ohne eigenen State.
- * Der aktive Chip wird aus der URL abgeleitet.
+ * Der aktive Chip wird aus der URL abgeleitet; Suche und Sortierung bleiben erhalten.
  */
 export function CategoryFilter({ categories }: CategoryFilterProps) {
+  const { locale, dict } = useLocale();
   const searchParams = useSearchParams();
-  const active = searchParams.get("category") ?? "";
-  const q = searchParams.get("q") ?? undefined;
+  const { category: active, q, sort } = parseProductFilters(
+    Object.fromEntries(searchParams.entries()),
+  );
 
   const chipClass = (isActive: boolean) =>
     `shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
@@ -27,15 +33,15 @@ export function CategoryFilter({ categories }: CategoryFilterProps) {
     }`;
 
   return (
-    <nav aria-label="Kategorie-Filter">
+    <nav aria-label={dict.plp.categoryFilter}>
       <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
         <li>
           <Link
-            href={buildProductsHref({ q })}
-            className={chipClass(active === "")}
-            aria-current={active === "" ? "page" : undefined}
+            href={buildProductsHref(locale, { q, sort })}
+            className={chipClass(!active)}
+            aria-current={!active ? "page" : undefined}
           >
-            Alle Produkte
+            {dict.plp.allProducts}
           </Link>
         </li>
         {categories.map((category) => {
@@ -43,11 +49,11 @@ export function CategoryFilter({ categories }: CategoryFilterProps) {
           return (
             <li key={category}>
               <Link
-                href={buildProductsHref({ q, category })}
+                href={buildProductsHref(locale, { q, sort, category })}
                 className={chipClass(isActive)}
                 aria-current={isActive ? "page" : undefined}
               >
-                {formatCategory(category)}
+                {categoryLabel(dict, category)}
               </Link>
             </li>
           );

@@ -1,17 +1,29 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useLocale } from "@/components/i18n/locale-provider";
 import { DiscountBadge, Price } from "@/components/ui/price";
 import { RatingStars } from "@/components/ui/rating-stars";
-import { formatCategory } from "@/lib/format";
+import { categoryLabel } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/config";
 import type { ProductSummary } from "@/lib/types/product";
+import { WishlistButton } from "./wishlist-button";
 
 interface ProductCardProps {
   product: ProductSummary;
   /** Erste sichtbare Bilder priorisieren (LCP). */
   priority?: boolean;
+  /** Für Slider: feste Bildgrößen-Angabe */
+  sizes?: string;
 }
 
-export function ProductCard({ product, priority = false }: ProductCardProps) {
+const DEFAULT_SIZES =
+  "(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw";
+
+export function ProductCard({ product, priority = false, sizes = DEFAULT_SIZES }: ProductCardProps) {
+  const { locale, dict } = useLocale();
+
   return (
     <article className="group relative flex flex-col gap-3">
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-surface-muted">
@@ -19,25 +31,28 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           src={product.thumbnail}
           alt={product.title}
           fill
-          sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+          sizes={sizes}
           priority={priority}
           className="object-contain p-6 transition duration-300 group-hover:scale-105"
         />
         <div className="absolute left-3 top-3">
           <DiscountBadge percentage={product.discountPercentage} />
         </div>
+        <div className="absolute right-3 top-3">
+          <WishlistButton product={product} />
+        </div>
       </div>
 
       <div className="flex flex-col gap-1">
         <div className="flex items-start justify-between gap-3">
           <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-ink-muted">
-            {formatCategory(product.category)}
+            {categoryLabel(dict, product.category)}
           </p>
           <RatingStars rating={product.rating} />
         </div>
         <h2 className="line-clamp-2 text-base font-semibold leading-snug">
           <Link
-            href={`/products/${product.id}`}
+            href={localePath(locale, `/products/${product.id}`)}
             className="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-brand-600"
           >
             {product.title}

@@ -22,9 +22,15 @@ export function ProductGrid({ products, priorityCount = 4 }: ProductGridProps) {
   );
 }
 
-export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
+export function ProductGridSkeleton({
+  count = 8,
+  label,
+}: {
+  count?: number;
+  label: string;
+}) {
   return (
-    <div className={GRID_CLASS} role="status" aria-label="Produkte werden geladen">
+    <div className={GRID_CLASS} role="status" aria-label={label}>
       {Array.from({ length: count }, (_, i) => (
         <ProductCardSkeleton key={i} />
       ))}
