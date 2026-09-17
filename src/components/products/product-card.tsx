@@ -18,8 +18,8 @@ interface ProductCardProps {
   sizes?: string;
 }
 
-const DEFAULT_SIZES =
-  "(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw";
+// Entspricht dem 1/2/4-Spalten-Raster von ProductGrid bei den drei Breakpoints.
+const DEFAULT_SIZES = "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw";
 
 export function ProductCard({ product, priority = false, sizes = DEFAULT_SIZES }: ProductCardProps) {
   const { locale, dict } = useLocale();

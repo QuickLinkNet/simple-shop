@@ -110,3 +110,4 @@ src/
 - `next/image` mit `remotePatterns`, `priority` für LCP-Bilder
 - Error Boundary (`error.tsx`) mit Retry
 - Barrierefreiheit: Landmarken, `aria-current`, `aria-pressed`, `aria-live` für Toasts, sichtbare Fokus-Zustände, sr-only-Labels
+- Genau drei Breakpoints (Mobile / Tablet `sm` / Desktop `lg`), konsistent im ganzen Projekt verwendet – siehe [DECISIONS.md, Abschnitt 11](./DECISIONS.md#11-breakpoints)

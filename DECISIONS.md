@@ -136,3 +136,28 @@ Unbekannte Pfade außerhalb der Produktroute (z. B. `/foo/bar`) laufen in eine C
 - ESLint mit `eslint-config-next` (core-web-vitals + TypeScript).
 - Tailwind CSS 4 mit Design-Tokens in `globals.css` (`@theme`), abgeleitet aus den Screendesigns in `screendesigns/`. Keine Komponentenbibliothek.
 - Schrift: Outfit via `next/font/google` (self-hosted, kein Layout-Shift).
+
+## 11. Breakpoints
+
+Drei feste, überall gleich verwendete Breakpoints statt einer beliebigen Mischung aus Tailwinds fünf Stufen (`sm`/`md`/`lg`/`xl`/`2xl`):
+
+| Name        | Breite         | Tailwind-Prefix | Typisches Gerät              |
+| ----------- | -------------- | ---------------- | ----------------------------- |
+| **Mobile**  | < 640 px       | *(kein Prefix)*  | Smartphone, Hochformat        |
+| **Tablet**  | ≥ 640 px       | `sm:`            | Tablet, kleines Notebook      |
+| **Desktop** | ≥ 1024 px      | `lg:`            | Laptop, Desktop-Monitor       |
+
+**Warum genau drei:** Zwischenstufen wie `md` (768 px) oder `xl` (1280 px) klingen erstmal nach mehr Kontrolle, führten hier aber nur zu uneinheitlichen Rastern – z. B. hatte das Produkt-Grid ursprünglich vier verschiedene Spaltenzahlen über vier Breakpoints (1 → 2 → 3 → 4), während die PDP nur bei `lg` umbricht. Ergebnis: unvorhersehbares Verhalten je nach Bildschirmbreite und mehr Fälle zum Testen. Mit drei Stufen hat jede Komponente maximal drei Zustände, die sich manuell durchklicken lassen.
+
+**Wo `sm` und `lg` konkret etwas ändern:**
+
+| Bereich                     | Mobile              | Tablet (`sm`)          | Desktop (`lg`)         |
+| --------------------------- | ------------------- | ----------------------- | ----------------------- |
+| Produkt-Grid (PLP/Wunschliste) | 1 Spalte          | 2 Spalten                | 4 Spalten                |
+| Related-Products-Slider      | 1 Karte + Anschnitt | 2 Karten                 | 4 Karten                 |
+| Header                       | Logo/Suche/Icons umbrechen zweizeilig | einzeilig | – |
+| PDP-Layout                   | Galerie über Infos gestapelt | – | Galerie/Infos nebeneinander (55/45) |
+| Warenkorb                    | Liste über Summary gestapelt | – | Liste/Summary nebeneinander, Summary sticky |
+| Bildergalerie-Thumbnails     | `size-18`            | –                        | `size-24`                |
+
+Getestet wird an drei konkreten Fensterbreiten: **375 px** (Mobile, iPhone-Standardbreite), **768 px** (Tablet, oberhalb der 640-px-Schwelle) und **1280 px** (Desktop, oberhalb der 1024-px-Schwelle) – nicht nur an den exakten Breakpoint-Grenzen, sondern jeweils deutlich darüber, damit auch Zwischenzustände auffallen.

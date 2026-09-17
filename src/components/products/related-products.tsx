@@ -47,7 +47,7 @@ export function RelatedProductsSkeleton() {
         <div className="skeleton h-9 w-64" />
         <div className="skeleton h-4 w-40" />
       </div>
-      <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
           <ProductCardSkeleton key={i} />
         ))}

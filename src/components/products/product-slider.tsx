@@ -69,11 +69,13 @@ export function ProductSlider({ products, heading, headingId, aside }: ProductSl
         {products.map((product) => (
           <li
             key={product.id}
-            className="w-[70%] shrink-0 snap-start sm:w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2.5rem)/3)] xl:w-[calc((100%-3.75rem)/4)]"
+            // Peek-Karte auf Mobile, 2 auf Tablet, 4 auf Desktop – dieselben
+            // drei Breakpoints wie im restlichen Grid.
+            className="w-[70%] shrink-0 snap-start sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-3.75rem)/4)]"
           >
             <ProductCard
               product={product}
-              sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 70vw"
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 70vw"
             />
           </li>
         ))}

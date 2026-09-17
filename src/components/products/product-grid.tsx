@@ -1,8 +1,8 @@
 import { ProductCard, ProductCardSkeleton } from "./product-card";
 import type { ProductSummary } from "@/lib/types/product";
 
-const GRID_CLASS =
-  "grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4";
+// Bewusst nur die drei definierten Breakpoints (siehe README): 1 → 2 → 4 Spalten.
+const GRID_CLASS = "grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-4";
 
 interface ProductGridProps {
   products: ProductSummary[];
