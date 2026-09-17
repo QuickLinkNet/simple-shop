@@ -66,7 +66,13 @@ body {
 }
 
 .animate-marquee {
-  animation: marquee 28s linear infinite;
+  animation-name: marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  /* Dauer kommt inline vom Marquee-Component, skaliert mit der Item-Anzahl
+     (siehe MIN_REPEATS dort) – sonst würde ein längerer Track einfach
+     schneller statt gleich schnell laufen. */
+  animation-duration: var(--marquee-duration, 28s);
 }
 
 @media (prefers-reduced-motion: reduce) {
