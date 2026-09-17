@@ -3,16 +3,28 @@
 import Link from "next/link";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { useShop } from "@/components/shop/shop-provider";
-import { CartIcon, HeartIcon } from "@/components/ui/icons";
+import { CartIcon, HeartIcon, SearchIcon } from "@/components/ui/icons";
 import { localePath } from "@/lib/i18n/config";
 
-/** Wunschliste + Warenkorb mit Badge. Zähler erscheinen erst nach Hydration aus localStorage. */
+/**
+ * Such-Icon, Wunschliste + Warenkorb mit Badge. Die eigentliche Suche lebt in
+ * der Filter-Zeile der PLP (siehe products/page.tsx) – das Icon hier ist ein
+ * schneller, ehrlicher Sprung dorthin statt eines zweiten Suchfelds im Header.
+ * Zähler erscheinen erst nach Hydration aus localStorage.
+ */
 export function HeaderActions() {
   const { locale, dict } = useLocale();
   const { hydrated, cartCount, wishlist } = useShop();
 
   return (
-    <nav aria-label={`${dict.header.wishlist} / ${dict.header.cart}`} className="flex items-center gap-1">
+    <nav aria-label={`${dict.header.openSearch} / ${dict.header.wishlist} / ${dict.header.cart}`} className="flex items-center gap-1">
+      <Link
+        href={localePath(locale, "/products")}
+        aria-label={dict.header.openSearch}
+        className="grid size-11 place-items-center rounded-full text-brand-800 transition hover:bg-surface-muted"
+      >
+        <SearchIcon className="size-6" />
+      </Link>
       <ActionLink
         href={localePath(locale, "/wishlist")}
         label={dict.header.wishlist}

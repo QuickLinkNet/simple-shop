@@ -8,6 +8,7 @@ import { RatingStars } from "@/components/ui/rating-stars";
 import { categoryLabel } from "@/lib/i18n";
 import { localePath } from "@/lib/i18n/config";
 import type { ProductSummary } from "@/lib/types/product";
+import { QuickAddButton } from "./quick-add-button";
 import { WishlistButton } from "./wishlist-button";
 
 interface ProductCardProps {
@@ -58,7 +59,10 @@ export function ProductCard({ product, priority = false, sizes = DEFAULT_SIZES }
             {product.title}
           </Link>
         </h2>
-        <Price price={product.price} discountPercentage={product.discountPercentage} />
+        <div className="mt-auto flex items-center justify-between gap-2">
+          <Price price={product.price} discountPercentage={product.discountPercentage} />
+          <QuickAddButton product={product} />
+        </div>
       </div>
     </article>
   );

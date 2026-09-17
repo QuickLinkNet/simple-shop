@@ -5,6 +5,7 @@ import { useLocale } from "@/components/i18n/locale-provider";
 import { useShop } from "@/components/shop/shop-provider";
 import { CartIcon } from "@/components/ui/icons";
 import { formatPrice } from "@/lib/format";
+import { useMounted } from "@/lib/hooks/use-mounted";
 import { t } from "@/lib/i18n";
 import { localePath } from "@/lib/i18n/config";
 import { MAX_QUANTITY } from "@/lib/shop/store";
@@ -19,12 +20,14 @@ interface AddToCartProps {
 /** Mengen-Stepper + Warenkorb-Button (PDP) inkl. Sticky-Bar auf Mobile. */
 export function AddToCart({ product, stock }: AddToCartProps) {
   const { locale, dict } = useLocale();
-  const { addToCart, cartItem, hydrated, notify } = useShop();
+  const { addToCart, cartItem, notify } = useShop();
   const [quantity, setQuantity] = useState(1);
+  // Lokaler Mount-Flag statt des globalen `hydrated` – siehe useMounted().
+  const mounted = useMounted();
 
   const soldOut = stock <= 0;
   const max = Math.min(MAX_QUANTITY, Math.max(1, stock));
-  const inCart = hydrated ? (cartItem(product.id)?.quantity ?? 0) : 0;
+  const inCart = mounted ? (cartItem(product.id)?.quantity ?? 0) : 0;
 
   const add = () => {
     addToCart(product, quantity);

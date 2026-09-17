@@ -1,4 +1,6 @@
+import Link from "next/link";
 import type { Dictionary, Locale } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/config";
 import { Logo } from "./logo";
 
 const TRUST_ICONS = [
@@ -9,6 +11,14 @@ const TRUST_ICONS = [
 
 export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const trust = [dict.footer.trust1, dict.footer.trust2, dict.footer.trust3];
+
+  // Bewusst nur echte Ziele – kein "Kontakt/Datenschutz/Impressum" ohne
+  // dahinterliegende Seite, damit keine toten Links entstehen.
+  const nav = [
+    { label: dict.footer.navProducts, href: localePath(locale, "/products") },
+    { label: dict.footer.navWishlist, href: localePath(locale, "/wishlist") },
+    { label: dict.footer.navCart, href: localePath(locale, "/cart") },
+  ];
 
   return (
     <footer className="mt-12">
@@ -32,23 +42,50 @@ export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
             </li>
           ))}
         </ul>
+      </div>
 
-        <div className="flex flex-col gap-3 border-t border-border py-6 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-            <Logo locale={locale} label={dict.header.logoLabel} size="sm" />
-            <p>© 2026 Simple Shop</p>
+      <div className="bg-brand-800 text-surface-elevated">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:flex-row lg:items-start lg:justify-between lg:px-8">
+          <div className="flex flex-col gap-3">
+            <Logo locale={locale} label={dict.header.logoLabel} size="sm" variant="light" />
+            <p className="text-sm text-surface-elevated/70">{dict.footer.tagline}</p>
           </div>
-          <p>
-            {dict.footer.task} · {dict.footer.dataFrom}{" "}
-            <a
-              href="https://dummyjson.com"
-              target="_blank"
-              rel="noreferrer"
-              className="underline-offset-2 hover:text-ink hover:underline"
-            >
-              DummyJSON
-            </a>
+
+          <nav aria-label={dict.footer.navProducts} className="flex gap-8 text-sm">
+            <ul className="flex flex-col gap-2">
+              {nav.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="text-surface-elevated/80 transition hover:text-surface-elevated">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <p className="max-w-[16rem] -rotate-1 text-lg italic text-highlight lg:text-right">
+            <span aria-hidden className="mr-1 not-italic">
+              ✳
+            </span>
+            {dict.footer.quote}
           </p>
+        </div>
+
+        <div className="border-t border-surface-elevated/10">
+          <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-surface-elevated/60 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+            <p>© 2026 Simple Shop</p>
+            <p>
+              {dict.footer.task} · {dict.footer.dataFrom}{" "}
+              <a
+                href="https://dummyjson.com"
+                target="_blank"
+                rel="noreferrer"
+                className="underline-offset-2 hover:text-surface-elevated hover:underline"
+              >
+                DummyJSON
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>

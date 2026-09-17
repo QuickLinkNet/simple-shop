@@ -3,6 +3,7 @@
 import { useLocale } from "@/components/i18n/locale-provider";
 import { useShop } from "@/components/shop/shop-provider";
 import { HeartIcon } from "@/components/ui/icons";
+import { useMounted } from "@/lib/hooks/use-mounted";
 import { localePath } from "@/lib/i18n/config";
 import type { ProductSummary } from "@/lib/types/product";
 
@@ -15,7 +16,9 @@ interface WishlistButtonProps {
 export function WishlistButton({ product, variant = "icon" }: WishlistButtonProps) {
   const { locale, dict } = useLocale();
   const { isInWishlist, toggleWishlist, notify } = useShop();
-  const active = isInWishlist(product.id);
+  // Lokaler Mount-Flag statt des globalen `hydrated` – siehe useMounted().
+  const mounted = useMounted();
+  const active = mounted && isInWishlist(product.id);
   const label = active ? dict.product.removeFromWishlist : dict.product.addToWishlist;
 
   const onClick = () => {

@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { Suspense } from "react";
+import { HeroSlider } from "@/components/layout/hero-slider";
+import { Marquee } from "@/components/layout/marquee";
 import { CategoryFilter } from "@/components/products/category-filter";
 import { Pagination } from "@/components/products/pagination";
 import {
   ProductGrid,
   ProductGridSkeleton,
 } from "@/components/products/product-grid";
+import { SearchBox } from "@/components/products/search-box";
 import { SortSelect } from "@/components/products/sort-select";
 import { PAGE_SIZE, getCategories, getProducts } from "@/lib/api/dummyjson";
 import {
@@ -32,9 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * PLP. Hero, Überschrift und Kategorie-Chips sind Teil der statischen Shell
- * (pro Locale vorgerendert). Alles, was von `searchParams` abhängt, liegt in
- * <ProductList> hinter einer Suspense-Boundary und streamt zur Request-Zeit.
+ * PLP. Hero, Marquee, Überschrift und Kategorie-Chips sind Teil der
+ * statischen Shell (pro Locale vorgerendert). Alles, was von `searchParams`
+ * abhängt, liegt in <ProductList> hinter einer Suspense-Boundary und streamt
+ * zur Request-Zeit.
  */
 export default async function ProductsPage({ params, searchParams }: Props) {
   const { locale: rawLocale } = await params;
@@ -43,19 +46,42 @@ export default async function ProductsPage({ params, searchParams }: Props) {
 
   return (
     <div className="flex flex-col gap-8">
-      <Hero dict={dict} />
+      <HeroSlider />
+      {/* full-bleed: bricht bewusst aus dem max-w-7xl-Container der <main> aus */}
+      <div className="mx-[calc(50%-50vw)] w-screen">
+        <Marquee items={dict.plp.marqueeItems} />
+      </div>
 
-      <section aria-labelledby="shop-heading" className="flex flex-col gap-5">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 id="shop-heading" className="text-3xl font-bold tracking-tight sm:text-4xl">
-            {dict.plp.discover}
-          </h2>
-          <Suspense fallback={<div className="skeleton h-4 w-40" />}>
-            <ResultSummary dict={dict} searchParams={searchParams} />
-          </Suspense>
+      <section aria-labelledby="shop-heading" className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-ink-muted">
+              {dict.plp.sectionEyebrow}
+            </p>
+            <h2
+              id="shop-heading"
+              className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl"
+            >
+              {dict.plp.sectionHeadline1}
+              <br />
+              {dict.plp.sectionHeadline2}
+            </h2>
+          </div>
+          <div className="lg:text-right">
+            <p className="max-w-xs text-ink-muted lg:ml-auto">{dict.plp.sectionBlurb}</p>
+            <Suspense fallback={<div className="mt-1 skeleton h-4 w-24 lg:ml-auto" />}>
+              <ResultSummary dict={dict} searchParams={searchParams} />
+            </Suspense>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+          <div className="lg:w-72 lg:shrink-0">
+            {/* useSearchParams() erzwingt eine Suspense-Boundary */}
+            <Suspense fallback={<div className="skeleton h-11 w-full rounded-full" />}>
+              <SearchBox />
+            </Suspense>
+          </div>
           <div className="min-w-0 flex-1">
             <Suspense fallback={<div className="skeleton h-10 w-full rounded-full" />}>
               <Categories />
@@ -73,46 +99,6 @@ export default async function ProductsPage({ params, searchParams }: Props) {
         </Suspense>
       </section>
     </div>
-  );
-}
-
-function Hero({ dict }: { dict: Dictionary }) {
-  return (
-    <section
-      aria-label="Intro"
-      className="grid overflow-hidden rounded-3xl bg-surface-elevated lg:grid-cols-[1.1fr_1fr]"
-    >
-      <div className="flex flex-col justify-center gap-4 px-6 py-10 sm:px-10 lg:py-16">
-        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-ink-muted">
-          {dict.plp.heroKicker}
-        </p>
-        <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-brand-800 sm:text-5xl lg:text-6xl">
-          {dict.plp.heroTitle1}
-          <br />
-          {dict.plp.heroTitle2}
-        </h1>
-        <p className="text-lg text-ink-muted">{dict.plp.heroSubtitle}</p>
-        <a href="#shop-heading" className="group mt-2 inline-flex items-center gap-3 text-sm font-medium">
-          <span aria-hidden className="transition group-hover:translate-x-1">
-            ⟶
-          </span>
-          {dict.plp.heroCta}
-        </a>
-      </div>
-      <div aria-hidden className="relative h-48 sm:h-64 lg:h-auto">
-        <Image
-          src="/hero.jpg"
-          alt=""
-          fill
-          priority
-          sizes="(min-width: 1024px) 45vw, 100vw"
-          className="object-cover"
-        />
-        <span className="absolute right-4 top-4 rounded-md border border-brand-700/40 bg-surface-elevated/90 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-brand-800 backdrop-blur-sm sm:right-6 sm:top-6">
-          {dict.plp.heroBadge}
-        </span>
-      </div>
-    </section>
   );
 }
 

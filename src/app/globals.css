@@ -23,6 +23,7 @@
   --color-accent-soft: #f3e4e1;
   --color-star: #d9a53a;
   --color-highlight: #dfe9a3;
+  --color-highlight-strong: #cbdd6f;
   --color-cream: #f6ecd8;
 
   --color-success: #2f7a4a;
@@ -53,6 +54,25 @@ body {
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   border-radius: 0.75rem;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
 }
 
 /* Native Accordion: Marker ausblenden, eigenes Icon */

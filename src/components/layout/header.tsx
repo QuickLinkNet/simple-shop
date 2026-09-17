@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { Suspense } from "react";
-import { SearchBox } from "@/components/products/search-box";
+import { categoryLabel, t, type Dictionary, type Locale } from "@/lib/i18n";
 import { formatPrice } from "@/lib/format";
-import { t, type Dictionary, type Locale } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/config";
+import { buildProductsHref } from "@/lib/products/search-params";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/shop/store";
 import { HeaderActions } from "./header-actions";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -11,6 +13,10 @@ interface HeaderProps {
   locale: Locale;
   dict: Dictionary;
 }
+
+// Kuratierte Kurz-Navigation aus echten Kategorie-Slugs (kein erfundenes
+// "Wohnen"/"Technik"-Meta-Feld, das es in den Produktdaten nicht gibt).
+const NAV_CATEGORIES = ["beauty", "furniture", "laptops"] as const;
 
 export function Header({ locale, dict }: HeaderProps) {
   return (
@@ -28,18 +34,25 @@ export function Header({ locale, dict }: HeaderProps) {
       </div>
 
       <div className="border-b border-border bg-surface/95 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:flex-nowrap sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Logo locale={locale} label={dict.header.logoLabel} />
-          <div className="order-3 w-full sm:order-2 sm:mx-auto sm:max-w-lg">
-            {/* useSearchParams() erzwingt eine Suspense-Boundary */}
-            <Suspense fallback={<div className="skeleton h-11 w-full rounded-full" />}>
-              <SearchBox />
-            </Suspense>
-          </div>
-          {/* Sprachumschalter bewusst hier, direkt oben rechts neben den
-              Icons – im dünnen Promo-Balken darüber wäre er zu leicht zu
-              übersehen. */}
-          <div className="order-2 ml-auto flex items-center gap-2 sm:order-3 sm:ml-0">
+
+          <nav aria-label={dict.header.navDiscover} className="ml-6 hidden items-center gap-6 text-sm font-medium lg:flex">
+            <Link href={localePath(locale, "/products")} className="transition hover:text-brand-700">
+              {dict.header.navDiscover}
+            </Link>
+            {NAV_CATEGORIES.map((slug) => (
+              <Link
+                key={slug}
+                href={buildProductsHref(locale, { category: slug })}
+                className="transition hover:text-brand-700"
+              >
+                {categoryLabel(dict, slug)}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-2">
             <Suspense fallback={<div className="skeleton h-9 w-[4.5rem] rounded-full" />}>
               <LocaleSwitcher />
             </Suspense>
