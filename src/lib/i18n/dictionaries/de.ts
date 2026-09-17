@@ -58,7 +58,6 @@ export const de = {
     slideGoTo: "Zu Folie {index}",
     slideOf: "Folie {current} von {total}",
     marqueeItems: ["Weniger suchen", "Mehr entdecken", "Gute Dinge finden"],
-    sectionEyebrow: "01 / Unsere Favoriten",
     sectionHeadline1: "Dein nächstes",
     sectionHeadline2: "Lieblingsstück.",
     sectionBlurb: "Beauty, Wohnen und Technik. Mit Sorgfalt für dich ausgewählt.",

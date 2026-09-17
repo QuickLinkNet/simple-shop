@@ -55,16 +55,15 @@ export default async function ProductsPage({ params, searchParams }: Props) {
       <section aria-labelledby="shop-heading" className="flex flex-col gap-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-ink-muted">
-              {dict.plp.sectionEyebrow}
-            </p>
+            {/* Kein erzwungener <br/>: bei kürzeren Übersetzungen (z. B. Englisch)
+                brach die Zeile sonst nach zwei Wörtern verwaist um. Ein max-width
+                lässt die Zeile natürlich dort umbrechen, wo es zur jeweiligen
+                Übersetzung passt. */}
             <h2
               id="shop-heading"
-              className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl"
+              className="max-w-md text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl"
             >
-              {dict.plp.sectionHeadline1}
-              <br />
-              {dict.plp.sectionHeadline2}
+              {dict.plp.sectionHeadline1} {dict.plp.sectionHeadline2}
             </h2>
           </div>
           <div className="lg:text-right">

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { ChevronIcon } from "@/components/ui/icons";
 import { t } from "@/lib/i18n";
 
 const IMAGES = ["/hero.jpg", "/hero-2.jpg", "/hero-3.jpg"];
@@ -60,29 +61,50 @@ export function HeroSlider() {
           </span>
         </a>
 
-        <div
-          className="mt-4 flex items-center gap-2"
-          role="tablist"
-          aria-label={dict.plp.pagination}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowRight") go(index + 1);
-            if (e.key === "ArrowLeft") go(index - 1);
-          }}
-        >
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              role="tab"
-              aria-selected={i === index}
-              aria-label={t(dict.plp.slideGoTo, { index: i + 1 })}
-              onClick={() => go(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === index ? "w-8 bg-highlight" : "w-4 bg-surface-elevated/30 hover:bg-surface-elevated/50"
-              }`}
-            />
-          ))}
-          <span className="ml-2 text-xs text-surface-elevated/60">
+        <div className="mt-4 flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => go(index - 1)}
+            aria-label={dict.plp.slidePrev}
+            className="grid size-8 shrink-0 place-items-center rounded-full border border-surface-elevated/30 transition hover:border-surface-elevated/60 hover:bg-surface-elevated/10"
+          >
+            <ChevronIcon direction="left" className="size-4" />
+          </button>
+
+          <div
+            className="flex items-center gap-2"
+            role="tablist"
+            aria-label={dict.plp.pagination}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowRight") go(index + 1);
+              if (e.key === "ArrowLeft") go(index - 1);
+            }}
+          >
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                role="tab"
+                aria-selected={i === index}
+                aria-label={t(dict.plp.slideGoTo, { index: i + 1 })}
+                onClick={() => go(i)}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === index ? "w-8 bg-highlight" : "w-4 bg-surface-elevated/30 hover:bg-surface-elevated/50"
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => go(index + 1)}
+            aria-label={dict.plp.slideNext}
+            className="grid size-8 shrink-0 place-items-center rounded-full border border-surface-elevated/30 transition hover:border-surface-elevated/60 hover:bg-surface-elevated/10"
+          >
+            <ChevronIcon direction="right" className="size-4" />
+          </button>
+
+          <span className="text-xs text-surface-elevated/60">
             {t(dict.plp.slideOf, { current: index + 1, total: slides.length })}
           </span>
         </div>

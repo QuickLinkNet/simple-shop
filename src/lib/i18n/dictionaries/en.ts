@@ -56,7 +56,6 @@ export const en: Dictionary = {
     slideGoTo: "Go to slide {index}",
     slideOf: "Slide {current} of {total}",
     marqueeItems: ["Search less", "Discover more", "Find good things"],
-    sectionEyebrow: "01 / Our favourites",
     sectionHeadline1: "Your next",
     sectionHeadline2: "favourite thing.",
     sectionBlurb: "Beauty, home and tech. Carefully selected for you.",
