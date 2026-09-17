@@ -9,27 +9,24 @@ import { categoryLabel, plural } from "@/lib/i18n";
 import { localePath } from "@/lib/i18n/config";
 import { MAX_QUANTITY, shippingCost } from "@/lib/shop/store";
 import { useShop } from "./shop-provider";
+import { useCartPriceSync } from "./use-cart-price-sync";
 
 export function CartView() {
   const { locale, dict } = useLocale();
   const { cart, cartCount, cartSubtotal, hydrated, setQuantity, removeFromCart, clearCart, notify } =
     useShop();
+  // Preis-/Bestandscheck gegen die Live-Daten, sobald der Warenkorb sichtbar ist.
+  const { notices, dismiss } = useCartPriceSync();
 
   if (!hydrated) {
     return <CartSkeleton />;
   }
 
-  if (cart.length === 0) {
-    return (
-      <EmptyState
-        title={dict.cart.title}
-        text={dict.cart.empty}
-        cta={dict.cart.emptyCta}
-        href={localePath(locale, "/products")}
-      />
-    );
-  }
-
+  // Wichtig: erst NACH den Hinweisen verzweigen. Wenn die Revalidation die
+  // letzte Position entfernt (z. B. nicht mehr verfügbar), muss der Hinweis
+  // trotzdem sichtbar bleiben – sonst sieht der Nutzer nur noch "leer" und
+  // nie, warum. Siehe DECISIONS.md, Abschnitt 3.2.
+  const isEmpty = cart.length === 0;
   const shipping = shippingCost(cartSubtotal);
   const total = cartSubtotal + shipping;
 
@@ -37,11 +34,45 @@ export function CartView() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{dict.cart.title}</h1>
-        <p className="text-sm text-ink-muted">
-          {plural(cartCount, dict.cart.itemsOne, dict.cart.itemsMany)}
-        </p>
+        {!isEmpty && (
+          <p className="text-sm text-ink-muted">
+            {plural(cartCount, dict.cart.itemsOne, dict.cart.itemsMany)}
+          </p>
+        )}
       </div>
 
+      {notices.length > 0 && (
+        <ul className="flex flex-col gap-2" aria-live="polite">
+          {notices.map((notice) => (
+            <li
+              key={notice.id}
+              className="flex items-start justify-between gap-3 rounded-2xl border border-warning/30 bg-cream px-4 py-3 text-sm text-ink"
+            >
+              <span>{notice.text}</span>
+              <button
+                type="button"
+                onClick={() => dismiss(notice.id)}
+                aria-label={dict.cart.dismissNotice}
+                className="grid size-6 shrink-0 place-items-center rounded-full text-ink-muted transition hover:bg-surface-muted hover:text-ink"
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {isEmpty ? (
+        <div className="rounded-3xl bg-surface-elevated px-6 py-20 text-center">
+          <p className="text-lg text-ink-muted">{dict.cart.empty}</p>
+          <Link
+            href={localePath(locale, "/products")}
+            className="mt-6 inline-flex h-12 items-center rounded-full bg-brand-700 px-6 text-sm font-semibold text-surface-elevated transition hover:bg-brand-800"
+          >
+            {dict.cart.emptyCta}
+          </Link>
+        </div>
+      ) : (
       <div className="grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-start">
         <ul className="divide-y divide-border rounded-3xl bg-surface-elevated px-5 sm:px-6">
           {cart.map(({ product, quantity }) => (
@@ -173,6 +204,7 @@ export function CartView() {
           </div>
         </aside>
       </div>
+      )}
     </div>
   );
 }

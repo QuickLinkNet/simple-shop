@@ -27,7 +27,11 @@ Kein Vite/SPA-Setup: Das würde die geforderte Server-seitige Datenbeschaffung u
 
 **Metadata + Page teilen einen Request:** `generateMetadata` und die Page rufen beide `getProduct(id)` auf. Da die Funktion mit `"use cache"` markiert ist, wird der API-Call dedupliziert.
 
-## 3. Caching / Revalidation
+## 3. Revalidation-Strategie
+
+Zwei unabhängige Datentöpfe müssen aktuell gehalten werden: der **Server-Cache** der Produktdaten und der **Client-Zustand** (Warenkorb/Wunschliste), der beliebig lange in `localStorage` überdauert. Beide werden unterschiedlich behandelt.
+
+### 3.1 Server-seitig: zeitbasiert mit `cacheLife`
 
 Alle Datenfunktionen liegen in `src/lib/api/dummyjson.ts` und sind mit `"use cache"` + `cacheLife()` versehen:
 
@@ -39,9 +43,35 @@ Alle Datenfunktionen liegen in `src/lib/api/dummyjson.ts` und sind mit `"use cac
 | `getCategories()`       | `days`      | Kategorien ändern sich praktisch nie                   |
 | `getProductIds()`       | `days`      | nur für `generateStaticParams`                         |
 
-`cacheLife("hours")` bedeutet: stale nach 5 min (Client), revalidate nach 1 h, expire nach 1 Tag. Der Build-Output zeigt das pro Route (`Revalidate 1h / Expire 1d` für `/products/[id]`).
+`cacheLife("hours")` bedeutet konkret: **stale** nach 5 Minuten (der Browser hält ein per Prefetch geladenes Ergebnis so lange für "frisch genug"), **revalidate** nach 1 Stunde (der Server holt beim nächsten Request neue Daten und ersetzt den Cache-Eintrag), **expire** nach 1 Tag (harte Obergrenze, danach wird auf jeden Fall neu geladen). Der Build-Output weist das pro Route aus (`Revalidate 1h / Expire 1d` für `/products/[id]`).
 
-Für eine echte Shop-Anbindung würde man zusätzlich `cacheTag("product", id)` setzen und per Webhook `revalidateTag()` auslösen – bei DummyJSON gibt es keine Änderungsereignisse, daher rein zeitbasiert.
+Für eine echte Backend-Anbindung würde man zusätzlich `cacheTag("product", id)` setzen und per Webhook `revalidateTag()` auslösen, sobald sich ein Produkt ändert (event-basiert statt nur zeitbasiert). DummyJSON hat keine solchen Change-Events, daher bleibt es hier bei der zeitbasierten Strategie – der Erweiterungspunkt ist aber vorbereitet (eine Zeile pro Funktion).
+
+### 3.2 Client-seitig: das Warenkorb-Problem
+
+**Die Frage, die sich stellt:** Der Warenkorb liegt in `localStorage` und kann tagelang bestehen bleiben – deutlich länger als der 1-Stunden-Server-Cache. Beim Hinzufügen wird eine *Momentaufnahme* des Produkts gespeichert (Titel, Preis, Rabatt, Bild), nicht nur die ID. Ändert sich der Preis in der Zwischenzeit (bei DummyJSON simuliert, in echt: Sale endet, Preis wird korrigiert, Produkt wird ausverkauft), zeigt der Warenkorb einen veralteten Stand – klassisches Cache-Invalidation-Problem, nur eine Ebene höher als der Server-Cache.
+
+**Lösung – Revalidation beim Betreten von `/cart`, nicht bei jedem Request:**
+
+1. `CartView` ruft den Hook `useCartPriceSync()` auf (`components/shop/use-cart-price-sync.ts`).
+2. Der Hook sendet die IDs aller Warenkorb-Positionen an `POST /api/cart/revalidate`.
+3. Die Route liest die aktuellen Werte über das **gleiche** gecachte `getProduct()` – der Check ist also höchstens so alt wie der Server-Cache (≤ 1 h), aber garantiert nicht älter, unabhängig davon, wie lange das Item schon im Warenkorb liegt.
+4. Der Client vergleicht Feld für Feld und reagiert:
+
+   | Server sagt …                        | Reaktion                                                        |
+   | ------------------------------------- | ----------------------------------------------------------------- |
+   | Produkt existiert nicht mehr / `stock = 0` | Position wird entfernt, Hinweis „… ist nicht mehr verfügbar“ |
+   | `stock` < gewählte Menge               | Menge wird auf `stock` gekappt, Hinweis mit neuer Menge          |
+   | `price` / `discountPercentage` geändert | Momentaufnahme wird aktualisiert, Hinweis mit altem→neuem Preis |
+
+5. Alle Änderungen laufen über `dispatch({ type: "cart/updateProduct", … })` im selben Reducer wie alle anderen Warenkorb-Aktionen (`lib/shop/store.ts`) – keine Sonderlogik, kein zweiter State.
+
+**Bewusste Entscheidungen dabei:**
+
+- **Kein automatisches Verschwinden ohne Hinweis.** Jede Änderung erzeugt eine sichtbare, einzeln schließbare Meldung im Warenkorb (`aria-live="polite"`), nichts wird stillschweigend korrigiert.
+- **Trigger ist der Seitenaufruf, nicht Polling.** Ein Warenkorb-Icon mit permanentem Live-Preis wäre unnötiger Traffic für eine Aufgabe ohne echtes Backend; das Nachschlagen genau dann, wenn der Nutzer den Warenkorb ansieht (vor dem gedachten Checkout), ist der Punkt, an dem es zählt – vergleichbar mit dem Preis-Refresh großer Shops beim Öffnen des Warenkorbs.
+- **Re-Check nur, wenn sich die Artikel-Menge ändert**, nicht bei jeder Mengen-Änderung: Der Hook merkt sich die zuletzt geprüfte ID-Kombination (`idsKey`) und fragt erst wieder an, wenn ein Produkt hinzukommt oder wegfällt – eine Mengenänderung im Warenkorb selbst löst keinen erneuten Server-Call aus.
+- **Fehlertoleranz:** Schlägt der Revalidate-Call fehl (offline, API down), bleibt der Warenkorb mit dem letzten bekannten Stand nutzbar; es ist eine Komfortfunktion, kein kritischer Pfad.
 
 ## 4. URL als Single Source of Truth (PLP)
 
@@ -49,6 +79,7 @@ Filter, Suche, Sortierung und Seite leben ausschließlich in `?q=&category=&sort
 
 - `search-params.ts` parst und validiert (`page ≥ 1`, Query max. 100 Zeichen, `sort` gegen eine Whitelist) und serialisiert zurück.
 - **Kategorie-Chips und Pagination sind `<Link>`s** – Deep-Link-fähig, prefetchbar, funktionieren ohne JS. Die Sortierung ist ein natives `<select>`, das per `router.replace` in die URL schreibt.
+- Bei 24 Kategorien würden umbrechende Chips mehrzeilig und unruhig wirken. Die Zeile ist deshalb **immer einzeilig und horizontal scrollbar** (Muster großer Shops wie Zalando/Amazon), mit Fade-Kanten und Pfeil-Buttons ab `sm` (`lib/hooks/use-horizontal-scroll.ts`, geteilt mit dem Related-Products-Slider); auf Touch reicht Wischen.
 - **Die Suche** ist die einzige Komponente mit lokalem State (Input-Wert). Sie schreibt debounced (300 ms) per `router.replace` in die URL, setzt `page` zurück und zeigt über `useTransition` einen Pending-Indikator. Externe URL-Änderungen (Back-Button) werden ins Feld übernommen.
 
 ## 5. Umgang mit API-Einschränkungen
@@ -82,6 +113,7 @@ Die Screendesigns zeigen Warenkorb, Wunschliste und Mengenauswahl. Damit keine �
 
 - **State** liegt in einem externen Store (`lib/shop/external-store.ts`), der per `useSyncExternalStore` in React eingebunden ist. Server-Snapshot ist immer leer → kein Hydration-Mismatch; nach der Hydration wird aus `localStorage` gelesen. Das `storage`-Event synchronisiert mehrere Tabs.
 - **Reducer** (`lib/shop/store.ts`) ist eine reine Funktion und damit ohne React testbar. Gelesene Storage-Daten werden defensiv validiert.
+- **Wie mit veralteten Warenkorb-Daten umgegangen wird** (Preisänderungen, Ausverkauf), steht in Abschnitt 3.2 (Revalidation-Strategie).
 - Der Checkout-Button ist bewusst als Demo gekennzeichnet („Checkout ist nicht angebunden“).
 
 ## 8. 404-Verhalten

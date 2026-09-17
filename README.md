@@ -59,14 +59,16 @@ src/
 ├── components/
 │   ├── layout/                     # Header (Suche, Badges, Sprachwechsel), Footer, Logo
 │   ├── products/                   # ProductCard, Grid, Slider, Gallery, Filter, Sort, Pagination, AddToCart
-│   ├── shop/                       # ShopProvider (Warenkorb/Wunschliste), CartView, WishlistView, Toast
+│   ├── shop/                       # ShopProvider, CartView (+ Preis-Sync), WishlistView, Toast
 │   ├── i18n/                       # LocaleProvider (Client-Context)
 │   └── ui/                         # Price, RatingStars, Icons
+├── app/api/cart/revalidate/route.ts  # Preis-/Bestandscheck für den Warenkorb (POST)
 └── lib/
     ├── api/dummyjson.ts            # Typisierter API-Client mit "use cache"
     ├── i18n/                       # Locale-Config, Wörterbücher (de/en), t()
     ├── products/search-params.ts   # URL-State parsen/serialisieren (Filter, Sort, Page)
-    ├── shop/                       # Reducer, externer Store (useSyncExternalStore + localStorage)
+    ├── shop/                       # Reducer, externer Store, Revalidate-Vertrag (Typen)
+    ├── hooks/use-horizontal-scroll.ts  # geteilte Scroll-Logik (Kategorie-Zeile, Slider)
     ├── types/product.ts            # Typen der API-Responses
     └── format.ts                   # Preis-/Zahlen-Formatierung
 ```
@@ -77,7 +79,7 @@ src/
 
 - Server-seitiges Data Fetching, Ergebnis streamt per `<Suspense>` hinter einer statischen Shell
 - Client-seitige Suche im Header (debounced Live-Suche auf der PLP, Enter-Navigation von anderen Seiten)
-- Kategorie-Chips, Sortierung (Preis, Bewertung, Name) und Pagination – **alles ausschließlich über URL-Query-Parameter** (`q`, `category`, `sort`, `page`)
+- Kategorie-Chips (horizontal scrollbar, wie bei großen Shops – bricht bei 24 Kategorien nicht mehrzeilig um), Sortierung (Preis, Bewertung, Name) und Pagination – **alles ausschließlich über URL-Query-Parameter** (`q`, `category`, `sort`, `page`)
 - Skeleton-Loading-States, Empty-State, Ellipsen-Pagination
 
 **PDP `/products/[id]`**
@@ -94,6 +96,7 @@ src/
 
 - Warenkorb und Wunschliste in `localStorage`, tab-übergreifend synchronisiert, Badges im Header, Toast-Feedback
 - Warenkorb-Seite mit Mengenänderung, Entfernen, Zwischensumme, Versandkosten-Logik (kostenlos ab 75 $)
+- **Revalidation:** Beim Öffnen des Warenkorbs werden Preis, Rabatt und Bestand aller Positionen live gegen `/api/cart/revalidate` geprüft; Änderungen werden übernommen und dem Nutzer als schließbarer Hinweis angezeigt (nie stillschweigend). Details und Begründung in [DECISIONS.md, Abschnitt 3](./DECISIONS.md#3-revalidation-strategie).
 
 **Internationalisierung**
 

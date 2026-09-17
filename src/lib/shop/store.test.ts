@@ -52,6 +52,30 @@ describe("shopReducer – cart", () => {
   });
 });
 
+describe("shopReducer – cart/updateProduct (Revalidation)", () => {
+  it("überschreibt nur die angegebenen Felder der Produkt-Momentaufnahme", () => {
+    let state = shopReducer(EMPTY_STATE, { type: "cart/add", product: product(1, 10), quantity: 2 });
+    state = shopReducer(state, {
+      type: "cart/updateProduct",
+      id: 1,
+      patch: { price: 12.5, discountPercentage: 5 },
+    });
+    expect(state.cart[0]?.product.price).toBe(12.5);
+    expect(state.cart[0]?.product.discountPercentage).toBe(5);
+    expect(state.cart[0]?.product.title).toBe("Produkt 1");
+    expect(state.cart[0]?.quantity).toBe(2);
+  });
+
+  it("ignoriert unbekannte IDs", () => {
+    const state = shopReducer(EMPTY_STATE, {
+      type: "cart/updateProduct",
+      id: 999,
+      patch: { price: 1 },
+    });
+    expect(state).toEqual(EMPTY_STATE);
+  });
+});
+
 describe("shopReducer – wishlist", () => {
   it("toggelt Einträge", () => {
     let state = shopReducer(EMPTY_STATE, { type: "wishlist/toggle", product: product(1) });

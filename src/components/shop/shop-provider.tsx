@@ -31,6 +31,8 @@ interface ShopContextValue extends ShopState {
   setQuantity: (id: number, quantity: number) => void;
   removeFromCart: (id: number) => void;
   clearCart: () => void;
+  /** Überschreibt einzelne Felder eines Warenkorb-Produkts (z. B. nach einem Preis-Check). */
+  updateCartProduct: (id: number, patch: Partial<ProductSummary>) => void;
   toggleWishlist: (product: ProductSummary) => void;
   isInWishlist: (id: number) => boolean;
   cartItem: (id: number) => CartItem | undefined;
@@ -65,6 +67,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       setQuantity: (id, quantity) => dispatch({ type: "cart/setQuantity", id, quantity }),
       removeFromCart: (id) => dispatch({ type: "cart/remove", id }),
       clearCart: () => dispatch({ type: "cart/clear" }),
+      updateCartProduct: (id, patch) => dispatch({ type: "cart/updateProduct", id, patch }),
       toggleWishlist: (product) => dispatch({ type: "wishlist/toggle", product }),
       isInWishlist: (id) => state.wishlist.some((p) => p.id === id),
       cartItem: (id) => state.cart.find((i) => i.product.id === id),

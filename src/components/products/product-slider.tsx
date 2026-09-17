@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { ChevronIcon } from "@/components/ui/icons";
+import { useHorizontalScroll } from "@/lib/hooks/use-horizontal-scroll";
 import type { ProductSummary } from "@/lib/types/product";
 import { ProductCard } from "./product-card";
 
@@ -20,26 +20,8 @@ interface ProductSliderProps {
  */
 export function ProductSlider({ products, heading, headingId, aside }: ProductSliderProps) {
   const { dict } = useLocale();
-  const trackRef = useRef<HTMLUListElement>(null);
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
-
-  const updateButtons = useCallback(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    setCanPrev(el.scrollLeft > 4);
-    setCanNext(el.scrollLeft < maxScroll - 4);
-  }, []);
-
-  useEffect(() => {
-    updateButtons();
-    const el = trackRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(updateButtons);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [updateButtons, products.length]);
+  const { ref: trackRef, canScrollPrev: canPrev, canScrollNext: canNext, onScroll: updateButtons } =
+    useHorizontalScroll<HTMLUListElement>();
 
   // Scrollt um so viele ganze Karten, wie sichtbar sind (bleibt am Snap-Raster)
   const scrollByPage = (direction: 1 | -1) => {

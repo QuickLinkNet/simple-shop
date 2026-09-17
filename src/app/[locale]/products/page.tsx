@@ -54,13 +54,17 @@ export default async function ProductsPage({ params, searchParams }: Props) {
           </Suspense>
         </div>
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <Suspense fallback={<div className="skeleton h-10 w-full rounded-full" />}>
-            <Categories />
-          </Suspense>
-          <Suspense fallback={<div className="skeleton h-10 w-48 rounded-full" />}>
-            <SortSelect />
-          </Suspense>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0 flex-1">
+            <Suspense fallback={<div className="skeleton h-10 w-full rounded-full" />}>
+              <Categories />
+            </Suspense>
+          </div>
+          <div className="shrink-0">
+            <Suspense fallback={<div className="skeleton h-10 w-48 rounded-full" />}>
+              <SortSelect />
+            </Suspense>
+          </div>
         </div>
 
         <Suspense fallback={<ProductGridSkeleton count={PAGE_SIZE} label={dict.plp.loading} />}>

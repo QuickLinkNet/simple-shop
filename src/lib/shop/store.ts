@@ -20,6 +20,7 @@ export type ShopAction =
   | { type: "cart/setQuantity"; id: number; quantity: number }
   | { type: "cart/remove"; id: number }
   | { type: "cart/clear" }
+  | { type: "cart/updateProduct"; id: number; patch: Partial<ProductSummary> }
   | { type: "wishlist/toggle"; product: ProductSummary }
   | { type: "wishlist/remove"; id: number };
 
@@ -57,6 +58,16 @@ export function shopReducer(state: ShopState, action: ShopAction): ShopState {
 
     case "cart/clear":
       return { ...state, cart: [] };
+
+    // Aktualisiert die im Warenkorb gespeicherte Produkt-Momentaufnahme (Preis,
+    // Rabatt, …) mit frischen Server-Daten – siehe Revalidation-Strategie in DECISIONS.md.
+    case "cart/updateProduct":
+      return {
+        ...state,
+        cart: state.cart.map((i) =>
+          i.product.id === action.id ? { ...i, product: { ...i.product, ...action.patch } } : i,
+        ),
+      };
 
     case "wishlist/toggle": {
       const exists = state.wishlist.some((p) => p.id === action.product.id);
