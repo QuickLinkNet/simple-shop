@@ -12,7 +12,7 @@ export const en: Dictionary = {
   },
   header: {
     announcement: "Good things. Every day.",
-    freeShipping: "Free shipping from $75",
+    freeShipping: "Free shipping from {threshold}",
     searchPlaceholder: "What are you looking for?",
     searchLabel: "Search products",
     searchPending: "Searching",
@@ -99,6 +99,9 @@ export const en: Dictionary = {
     discount: "{percent}% off",
     sliderPrev: "Previous products",
     sliderNext: "Next products",
+    jumpToReviews: "Jump to reviews",
+    reviewsHeading: "Reviews",
+    noReviews: "This product has no reviews yet.",
   },
   cart: {
     title: "Cart",
@@ -109,7 +112,7 @@ export const en: Dictionary = {
     subtotal: "Subtotal",
     shipping: "Shipping",
     free: "Free",
-    shippingNote: "Free shipping from $75",
+    shippingNote: "Free shipping from {threshold}",
     total: "Total",
     checkout: "Checkout",
     checkoutNote: "Demo shop: checkout is not connected.",

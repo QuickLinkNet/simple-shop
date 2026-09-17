@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { TrashIcon } from "@/components/ui/icons";
 import { formatPrice } from "@/lib/format";
-import { categoryLabel, plural } from "@/lib/i18n";
+import { categoryLabel, plural, t } from "@/lib/i18n";
 import { localePath } from "@/lib/i18n/config";
-import { MAX_QUANTITY, shippingCost } from "@/lib/shop/store";
+import { FREE_SHIPPING_THRESHOLD, MAX_QUANTITY, shippingCost } from "@/lib/shop/store";
 import { useShop } from "./shop-provider";
 import { useCartPriceSync } from "./use-cart-price-sync";
 
@@ -170,7 +170,11 @@ export function CartView() {
               </dd>
             </div>
             {shipping > 0 && (
-              <p className="text-xs text-ink-muted">{dict.cart.shippingNote}</p>
+              <p className="text-xs text-ink-muted">
+                {t(dict.cart.shippingNote, {
+                  threshold: formatPrice(FREE_SHIPPING_THRESHOLD, locale),
+                })}
+              </p>
             )}
             <div className="mt-2 flex justify-between border-t border-border pt-3 text-lg font-bold">
               <dt>{dict.cart.total}</dt>

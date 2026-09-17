@@ -14,7 +14,7 @@ export const de = {
   },
   header: {
     announcement: "Gute Dinge. Jeden Tag.",
-    freeShipping: "Kostenloser Versand ab 75 $",
+    freeShipping: "Kostenloser Versand ab {threshold}",
     searchPlaceholder: "Was suchst du heute?",
     searchLabel: "Produkte suchen",
     searchPending: "Suche läuft",
@@ -101,6 +101,9 @@ export const de = {
     discount: "{percent} % Rabatt",
     sliderPrev: "Vorherige Produkte",
     sliderNext: "Nächste Produkte",
+    jumpToReviews: "Zu den Bewertungen springen",
+    reviewsHeading: "Bewertungen",
+    noReviews: "Für dieses Produkt liegen noch keine Bewertungen vor.",
   },
   cart: {
     title: "Warenkorb",
@@ -111,7 +114,7 @@ export const de = {
     subtotal: "Zwischensumme",
     shipping: "Versand",
     free: "Kostenlos",
-    shippingNote: "Kostenloser Versand ab 75 $",
+    shippingNote: "Kostenloser Versand ab {threshold}",
     total: "Gesamt",
     checkout: "Zur Kasse",
     checkoutNote: "Demo-Shop: Der Checkout ist nicht angebunden.",

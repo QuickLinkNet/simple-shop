@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { AddToCart } from "@/components/products/add-to-cart";
 import { ProductGallery } from "@/components/products/product-gallery";
+import { ProductReviews } from "@/components/products/product-reviews";
 import {
   RelatedProducts,
   RelatedProductsSkeleton,
@@ -135,7 +136,13 @@ async function ProductDetail({ params }: { params: Params }) {
               </h1>
             </div>
 
-            <RatingStars rating={product.rating} count={product.reviews.length} variant="full" />
+            <a
+              href="#reviews"
+              aria-label={dict.product.jumpToReviews}
+              className="inline-flex w-fit transition hover:opacity-80"
+            >
+              <RatingStars rating={product.rating} count={product.reviews.length} variant="full" />
+            </a>
 
             <div className="flex flex-col gap-1">
               <div className="flex flex-wrap items-center gap-3">
@@ -197,6 +204,8 @@ async function ProductDetail({ params }: { params: Params }) {
           </div>
         </div>
       </div>
+
+      <ProductReviews locale={locale} dict={dict} reviews={product.reviews} />
 
       {/* Streamt unabhängig vom Rest der Seite */}
       <Suspense fallback={<RelatedProductsSkeleton />}>

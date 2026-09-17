@@ -89,6 +89,7 @@ src/
 - Bildergalerie als Client Component (Thumbnails, Pfeile, Tastatur)
 - Mengen-Stepper, „In den Warenkorb“, Wunschliste, Sticky-Kaufleiste auf Mobile
 - Related Products als Scroll-Snap-Slider, gestreamt in eigener Suspense-Boundary
+- Bewertungen aus der API (`product.reviews`) mit Sterne-Link nach unten zum Bewertungsbereich
 - Produktdetails / Versand & Rückgabe als natives `<details>`-Accordion (kein JS nötig)
 - `notFound()` bei ungültiger oder unbekannter ID → eigene `not-found.tsx`
 
@@ -102,6 +103,7 @@ src/
 
 - Deutsch (Default, ohne URL-Präfix) und Englisch (`/en/…`), Umschalter im Header, Wahl wird per Cookie gemerkt
 - UI-Texte und Kategorienamen übersetzt. **Produkttitel und -beschreibungen kommen von DummyJSON und sind nur auf Englisch verfügbar.**
+- Preise: Deutsch zeigt EUR (umgerechnet, fester Kurs), Englisch USD (Originalwährung) – Details in [DECISIONS.md, Abschnitt 12](./DECISIONS.md#12-preise--währung).
 
 **Querschnitt**
 

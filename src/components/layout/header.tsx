@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import { SearchBox } from "@/components/products/search-box";
-import type { Dictionary, Locale } from "@/lib/i18n";
+import { formatPrice } from "@/lib/format";
+import { t, type Dictionary, type Locale } from "@/lib/i18n";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/shop/store";
 import { HeaderActions } from "./header-actions";
 import { LocaleSwitcher } from "./locale-switcher";
 import { Logo } from "./logo";
@@ -16,7 +18,12 @@ export function Header({ locale, dict }: HeaderProps) {
       <div className="bg-brand-700 text-surface-elevated">
         <div className="mx-auto flex h-7 w-full max-w-7xl items-center justify-center px-4 text-xs font-medium sm:px-6 lg:px-8">
           <p>{dict.header.announcement}</p>
-          <p className="ml-4 hidden sm:block">— {dict.header.freeShipping}</p>
+          <p className="ml-4 hidden sm:block">
+            —{" "}
+            {t(dict.header.freeShipping, {
+              threshold: formatPrice(FREE_SHIPPING_THRESHOLD, locale),
+            })}
+          </p>
         </div>
       </div>
 

@@ -128,7 +128,7 @@ Unbekannte Pfade außerhalb der Produktroute (z. B. `/foo/bar`) laufen in eine C
 
 - **Kein State-Management / Data-Fetching-Library** (SWR, React Query, Zustand): Server Components + URL-State + ein kleiner externer Store reichen aus.
 - **Keine E2E-Tests**: Die reine Logik (URL-State, Warenkorb-Reducer, Storage-Validierung, Pagination) ist per Vitest abgedeckt (`npm test`). Ein Playwright-Smoke-Test für Deep-Links und Sprachwechsel wäre der nächste Schritt.
-- **Preise in USD**: DummyJSON liefert USD-Werte; eine Umrechnung wäre fachlich falsch. Nur die Formatierung ist lokalisiert (`de-DE` / `en-US`).
+- **Kein Payment-Provider / echte Wechselkurs-API**: siehe Abschnitt 12 (Preise/Währung) für die EUR-Umrechnung mit fest hinterlegtem Kurs statt Live-Anbindung.
 
 ## 10. Tooling
 
@@ -161,3 +161,15 @@ Drei feste, überall gleich verwendete Breakpoints statt einer beliebigen Mischu
 | Bildergalerie-Thumbnails     | `size-18`            | –                        | `size-24`                |
 
 Getestet wird an drei konkreten Fensterbreiten: **375 px** (Mobile, iPhone-Standardbreite), **768 px** (Tablet, oberhalb der 640-px-Schwelle) und **1280 px** (Desktop, oberhalb der 1024-px-Schwelle) – nicht nur an den exakten Breakpoint-Grenzen, sondern jeweils deutlich darüber, damit auch Zwischenzustände auffallen.
+
+## 12. Preise & Währung
+
+Deutsch zeigt Preise in **EUR**, Englisch in **USD** (DummyJSONs Ursprungswährung). Die Umrechnung passiert an genau einer Stelle, `formatPrice()` in `lib/format.ts`:
+
+```ts
+const USD_TO_EUR_RATE = 0.92; // fest hinterlegt, siehe unten
+```
+
+**Warum ein fester statt ein live abgefragter Kurs:** Es gibt keine echte Zahlungsabwicklung in diesem Projekt – ein Wechselkurs, der nur zur Anzeige dient, rechtfertigt keinen zusätzlichen externen API-Call (und damit einen weiteren Fehlerfall: Was zeigt man, wenn die Kurs-API nicht antwortet?). Für eine Produktivanbindung wäre der nächste Schritt ein täglich aktualisierter Kurs (z. B. EZB-Referenzkurs), serverseitig mit `cacheLife("days")` gecacht – exakt das gleiche Muster wie bei den Produktdaten.
+
+**Wichtig für die Konsistenz:** Alle *internen Berechnungen* (Versandkosten-Schwelle, Warenkorb-Summen, Preisvergleich bei der Revalidation) laufen weiterhin in **USD**, dem Rohwert aus der API. Nur `formatPrice()` rechnet für die Anzeige um. Dadurch bleibt z. B. die 75-USD-Freigrenze für kostenlosen Versand exakt, unabhängig vom Kurs – angezeigt wird sie lokalisiert (`formatPrice(FREE_SHIPPING_THRESHOLD, locale)`), sodass Text und Betrag nie auseinanderlaufen können.

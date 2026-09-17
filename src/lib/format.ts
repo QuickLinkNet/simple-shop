@@ -1,12 +1,22 @@
 import type { Locale } from "@/lib/i18n/config";
 
+/**
+ * DummyJSON liefert alle Preise in USD. Für die deutsche Locale wird in EUR
+ * umgerechnet und angezeigt (Kurs siehe DECISIONS.md, Abschnitt "Preise").
+ * Fest hinterlegt statt live abgefragt, weil es hier keine echte Zahlungs-
+ * abwicklung gibt – für eine Produktivanbindung würde man diesen Wert durch
+ * einen tagesaktuellen Kurs (z. B. von der EZB) ersetzen.
+ */
+const USD_TO_EUR_RATE = 0.92;
+
 const PRICE_FORMATTERS: Record<Locale, Intl.NumberFormat> = {
-  de: new Intl.NumberFormat("de-DE", { style: "currency", currency: "USD" }),
+  de: new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }),
   en: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }),
 };
 
-/** DummyJSON liefert USD-Preise; nur die Darstellung ist lokalisiert. */
-export function formatPrice(value: number, locale: Locale = "de"): string {
+/** Preis (USD, wie von der API geliefert) lokalisiert formatieren – für "de" inkl. EUR-Umrechnung. */
+export function formatPrice(usdValue: number, locale: Locale = "de"): string {
+  const value = locale === "de" ? usdValue * USD_TO_EUR_RATE : usdValue;
   return PRICE_FORMATTERS[locale].format(value);
 }
 
@@ -35,4 +45,10 @@ export function formatCategoryFallback(slug: string): string {
 
 export function truncate(text: string, max = 160): string {
   return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
+}
+
+export function formatDate(iso: string, locale: Locale = "de"): string {
+  return new Intl.DateTimeFormat(locale === "de" ? "de-DE" : "en-US", {
+    dateStyle: "medium",
+  }).format(new Date(iso));
 }

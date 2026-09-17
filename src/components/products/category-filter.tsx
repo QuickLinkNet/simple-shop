@@ -41,8 +41,13 @@ export function CategoryFilter({ categories }: CategoryFilterProps) {
   const { ref, canScrollPrev, canScrollNext, onScroll, scrollByAmount } =
     useHorizontalScroll<HTMLUListElement>();
 
+  // "inline-flex": Links sind standardmäßig `display: inline`, dabei zählt
+  // vertikales Padding nicht zur Zeilenhöhe – zusammen mit overflow-x-auto
+  // (das laut CSS-Spec overflow-y automatisch auf "auto" setzt) wurde genau
+  // dieses Padding oben/unten abgeschnitten. Als Flex-Element bekommt der
+  // Link seine volle Höhe inklusive Padding zurück.
   const chipClass = (isActive: boolean) =>
-    `shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
+    `inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
       isActive
         ? "border-brand-700 bg-brand-700 text-surface-elevated"
         : "border-border-strong bg-surface-elevated text-ink hover:border-brand-600 hover:text-brand-700"
