@@ -173,3 +173,19 @@ const USD_TO_EUR_RATE = 0.92; // fest hinterlegt, siehe unten
 **Warum ein fester statt ein live abgefragter Kurs:** Es gibt keine echte Zahlungsabwicklung in diesem Projekt – ein Wechselkurs, der nur zur Anzeige dient, rechtfertigt keinen zusätzlichen externen API-Call (und damit einen weiteren Fehlerfall: Was zeigt man, wenn die Kurs-API nicht antwortet?). Für eine Produktivanbindung wäre der nächste Schritt ein täglich aktualisierter Kurs (z. B. EZB-Referenzkurs), serverseitig mit `cacheLife("days")` gecacht – exakt das gleiche Muster wie bei den Produktdaten.
 
 **Wichtig für die Konsistenz:** Alle *internen Berechnungen* (Versandkosten-Schwelle, Warenkorb-Summen, Preisvergleich bei der Revalidation) laufen weiterhin in **USD**, dem Rohwert aus der API. Nur `formatPrice()` rechnet für die Anzeige um. Dadurch bleibt z. B. die 75-USD-Freigrenze für kostenlosen Versand exakt, unabhängig vom Kurs – angezeigt wird sie lokalisiert (`formatPrice(FREE_SHIPPING_THRESHOLD, locale)`), sodass Text und Betrag nie auseinanderlaufen können.
+
+## 13. Paralleles Data Fetching
+
+Die Aufgabenstellung nennt als Beispiel „Produkt + Related Products gleichzeitig laden". Das haben wir bewusst **nicht** als `Promise.all([getProduct(id), getRelatedProducts(...)])` umgesetzt – aus einem inhaltlichen, nicht nur technischen Grund: `getRelatedProducts` braucht die Kategorie des Produkts als Parameter. Die kennen wir erst, nachdem `getProduct` aufgelöst hat. Ein echtes `Promise.all` von Anfang an würde bedeuten, entweder zu raten oder auf einen zweiten Request zu verzichten – beides schlechter als die jetzige Lösung.
+
+**Was wir stattdessen machen** – und was für den Nutzer tatsächlich schneller ist:
+
+- Die Produktdetails rendern in ihrer eigenen `<Suspense>`-Boundary und sind sichtbar, sobald `getProduct` fertig ist.
+- Related Products stecken in einer **zweiten, unabhängigen** `<Suspense>`-Boundary weiter unten auf der Seite und laden nach, ohne die Produktdetails zu blockieren.
+
+Das ist eigentlich das bessere Muster als erzwungenes `Promise.all`: Bei `Promise.all` müsste der Nutzer auf die langsamere der beiden Anfragen warten, bevor überhaupt etwas erscheint. Mit getrennten Suspense-Boundaries sieht er die Produktdetails sofort, während „Ähnliche Produkte" im Hintergrund nachlädt.
+
+**Wo im Projekt tatsächlich parallel gefetcht wird:**
+
+- `/api/cart/revalidate` prüft alle Warenkorb-Positionen mit einem echten `Promise.all(ids.map(id => getProduct(id)))` – hier gibt es keine Abhängigkeit zwischen den Requests, paralleles Fetching ist also die richtige Wahl (siehe `src/app/api/cart/revalidate/route.ts`).
+- Auf der PLP fragen `<ResultSummary>` (Trefferzahl) und `<ProductList>` (Grid) beide `getProducts(filters)` ab. Sie stehen als Geschwister-Suspense-Boundaries im Baum und lösen dadurch ebenfalls parallel auf – React wartet nicht, bis die eine fertig ist, bevor die andere startet. Da `getProducts` mit `"use cache"` markiert ist, wird der zweite Aufruf zusätzlich dedupliziert.
