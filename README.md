@@ -2,7 +2,7 @@
 
 Probeaufgabe „E-Commerce Product Pages“ – Product Listing Page (PLP) und Product Detail Page (PDP) mit **Next.js 16 (App Router)**, **TypeScript** und **Tailwind CSS 4**. Datenquelle ist die [DummyJSON API](https://dummyjson.com/docs/products).
 
-Die technischen Entscheidungen (Framework-Wahl, Rendering-Strategie, Caching) sind in [DECISIONS.md](./DECISIONS.md) dokumentiert.
+Die technischen Entscheidungen (Framework-Wahl, Rendering-Strategie, Caching) sind in [DECISIONS.md](./DECISIONS.md) dokumentiert. Die Screendesigns, auf denen das UI basiert, liegen in [`screendesigns/`](./screendesigns).
 
 ## Setup
 
@@ -51,7 +51,7 @@ src/
 │           ├── loading.tsx        # Skeleton für die PDP
 │           └── not-found.tsx      # 404 für unbekannte Produkt-IDs
 ├── components/
-│   ├── layout/                    # Header, Footer
+│   ├── layout/                    # Header (mit Suche), Footer, Logo
 │   ├── products/                  # ProductCard, ProductGrid, SearchBox, CategoryFilter,
 │   │                              # Pagination, ProductGallery, RelatedProducts
 │   └── ui/                        # Price, RatingStars
@@ -67,7 +67,7 @@ src/
 **PLP `/products`**
 
 - Server-seitiges Data Fetching, Ergebnis streamt per `<Suspense>` hinter einer statischen Shell
-- Client-seitige Suche (debounced, `useTransition` mit Pending-Indikator) und Kategorie-Filter
+- Client-seitige Suche im Header (debounced Live-Suche auf der PLP, Enter-Navigation von anderen Seiten) und Kategorie-Filter
 - Filter- und Pagination-State ausschließlich über URL-Query-Parameter (`q`, `category`, `page`)
 - Skeleton-Loading-States, Empty-State, Ellipsen-Pagination
 
@@ -77,6 +77,7 @@ src/
 - `generateMetadata`: Title, Description, Open Graph, Twitter Card
 - Bildergalerie als Client Component (Thumbnails, Pfeile, Tastatur)
 - Related Products (gleiche Kategorie) streamen in eigener Suspense-Boundary
+- Produktdetails / Versand & Rückgabe als natives `<details>`-Accordion (kein JS nötig)
 - `notFound()` bei ungültiger oder unbekannter ID → eigene `not-found.tsx`
 
 **Querschnitt**

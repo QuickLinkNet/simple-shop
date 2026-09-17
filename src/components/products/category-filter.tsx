@@ -20,22 +20,22 @@ export function CategoryFilter({ categories }: CategoryFilterProps) {
   const q = searchParams.get("q") ?? undefined;
 
   const chipClass = (isActive: boolean) =>
-    `shrink-0 rounded-full border px-3 py-1.5 text-sm transition ${
+    `shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
       isActive
-        ? "border-brand-600 bg-brand-600 text-white"
-        : "border-border bg-surface text-ink hover:border-brand-500 hover:text-brand-700"
+        ? "border-brand-700 bg-brand-700 text-surface-elevated"
+        : "border-border-strong bg-surface-elevated text-ink hover:border-brand-600 hover:text-brand-700"
     }`;
 
   return (
     <nav aria-label="Kategorie-Filter">
-      <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+      <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
         <li>
           <Link
             href={buildProductsHref({ q })}
             className={chipClass(active === "")}
             aria-current={active === "" ? "page" : undefined}
           >
-            Alle
+            Alle Produkte
           </Link>
         </li>
         {categories.map((category) => {

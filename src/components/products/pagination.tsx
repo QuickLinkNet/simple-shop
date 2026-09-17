@@ -38,12 +38,12 @@ export function Pagination({ filters, total, pageSize }: PaginationProps) {
   const href = (page: number) => buildProductsHref({ ...filters, page });
 
   const buttonClass =
-    "inline-flex h-9 min-w-9 items-center justify-center rounded-lg border border-border bg-surface px-3 text-sm transition hover:border-brand-500 hover:text-brand-700";
+    "inline-flex h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm font-medium transition hover:bg-surface-muted hover:text-brand-700";
   const disabledClass =
-    "inline-flex h-9 min-w-9 items-center justify-center rounded-lg border border-border bg-surface-muted px-3 text-sm text-ink-muted";
+    "inline-flex h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm text-border-strong";
 
   return (
-    <nav aria-label="Seitennavigation" className="flex items-center justify-center gap-1.5">
+    <nav aria-label="Seitennavigation" className="flex items-center justify-center gap-1">
       {current > 1 ? (
         <Link href={href(current - 1)} className={buttonClass} rel="prev">
           <span aria-hidden>‹</span>
@@ -67,7 +67,7 @@ export function Pagination({ filters, total, pageSize }: PaginationProps) {
             aria-current={item === current ? "page" : undefined}
             className={
               item === current
-                ? "inline-flex h-9 min-w-9 items-center justify-center rounded-lg bg-brand-600 px-3 text-sm font-medium text-white"
+                ? "inline-flex h-10 min-w-10 items-center justify-center rounded-lg bg-brand-700 px-3 text-sm font-semibold text-surface-elevated"
                 : buttonClass
             }
           >

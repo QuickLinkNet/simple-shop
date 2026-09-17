@@ -1,29 +1,40 @@
 @import "tailwindcss";
 
+/* Design-Tokens, abgeleitet aus den Screendesigns in /screendesigns */
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
 
-  --color-brand-50: #eef6ff;
-  --color-brand-100: #d9eaff;
-  --color-brand-500: #2563eb;
-  --color-brand-600: #1d4ed8;
-  --color-brand-700: #1e40af;
+  --color-brand-50: #eaf0ec;
+  --color-brand-100: #d4e0d8;
+  --color-brand-500: #2a5c46;
+  --color-brand-600: #1f4c39;
+  --color-brand-700: #163f2f;
+  --color-brand-800: #0f2f22;
 
-  --color-surface: #ffffff;
-  --color-surface-muted: #f6f7f9;
-  --color-border: #e5e7eb;
-  --color-ink: #111827;
-  --color-ink-muted: #6b7280;
+  --color-surface: #f7f5f0;
+  --color-surface-elevated: #fdfcfa;
+  --color-surface-muted: #efece5;
+  --color-border: #e3dfd6;
+  --color-border-strong: #cfc9bd;
+  --color-ink: #14241c;
+  --color-ink-muted: #6b6f6a;
 
-  --color-success: #15803d;
-  --color-warning: #b45309;
-  --color-danger: #dc2626;
+  --color-accent: #b8534a;
+  --color-accent-soft: #f3e4e1;
+  --color-star: #d9a53a;
+  --color-highlight: #dfe9a3;
+  --color-cream: #f6ecd8;
 
-  --shadow-card: 0 1px 2px rgb(17 24 39 / 0.04), 0 4px 12px rgb(17 24 39 / 0.06);
+  --color-success: #2f7a4a;
+  --color-warning: #b7791f;
+  --color-danger: #b8534a;
+
+  --shadow-card: 0 1px 2px rgb(20 36 28 / 0.04), 0 8px 24px rgb(20 36 28 / 0.06);
+  --shadow-float: 0 2px 6px rgb(20 36 28 / 0.08), 0 12px 32px rgb(20 36 28 / 0.1);
 }
 
 body {
-  background-color: var(--color-surface-muted);
+  background-color: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
@@ -38,8 +49,19 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background: linear-gradient(90deg, #e9e5dc 25%, #f3f0e9 50%, #e9e5dc 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
+}
+
+/* Native Accordion: Marker ausblenden, eigenes Icon */
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+details[open] .accordion-icon {
+  transform: rotate(45deg);
 }

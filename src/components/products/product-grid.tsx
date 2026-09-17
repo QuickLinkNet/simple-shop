@@ -2,7 +2,7 @@ import { ProductCard, ProductCardSkeleton } from "./product-card";
 import type { ProductSummary } from "@/lib/types/product";
 
 const GRID_CLASS =
-  "grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4";
+  "grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4";
 
 interface ProductGridProps {
   products: ProductSummary[];

@@ -82,78 +82,147 @@ async function ProductDetail({ params }: { params: Params }) {
   if (!product) notFound();
 
   const category = formatCategory(product.category);
+  const categoryHref = buildProductsHref({ category: product.category });
 
   return (
-    <article className="flex flex-col gap-10">
-      <Breadcrumb
-        items={[
-          { label: "Produkte", href: "/products" },
-          { label: category, href: buildProductsHref({ category: product.category }) },
-          { label: product.title },
-        ]}
-      />
+    <article className="flex flex-col gap-14">
+      <div className="flex flex-col gap-6">
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/products" },
+            { label: category, href: categoryHref },
+            { label: product.title },
+          ]}
+        />
 
-      <div className="grid gap-8 lg:grid-cols-[55fr_45fr] lg:gap-12">
-        <ProductGallery images={product.images} title={product.title} />
+        <div className="grid gap-8 lg:grid-cols-[55fr_45fr] lg:gap-14">
+          <ProductGallery images={product.images} title={product.title} />
 
-        <div className="flex flex-col gap-5">
-          <div>
-            {product.brand && (
-              <p className="text-sm font-medium uppercase tracking-wide text-ink-muted">
-                {product.brand}
-              </p>
-            )}
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-              {product.title}
-            </h1>
-          </div>
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              {product.brand && (
+                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-ink-muted">
+                  {product.brand}
+                </p>
+              )}
+              <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-brand-800 sm:text-5xl">
+                {product.title}
+              </h1>
+            </div>
 
-          <RatingStars
-            rating={product.rating}
-            count={product.reviews.length}
-            size="md"
-          />
-
-          <div className="flex items-center gap-3">
-            <Price
-              price={product.price}
-              discountPercentage={product.discountPercentage}
-              size="lg"
+            <RatingStars
+              rating={product.rating}
+              count={product.reviews.length}
+              variant="full"
             />
-            <DiscountBadge percentage={product.discountPercentage} />
+
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <Price
+                  price={product.price}
+                  discountPercentage={product.discountPercentage}
+                  size="lg"
+                />
+                <DiscountBadge percentage={product.discountPercentage} size="lg" />
+              </div>
+              <p className="text-sm text-ink-muted">inkl. MwSt., zzgl. Versandkosten</p>
+            </div>
+
+            <Availability status={product.availabilityStatus} stock={product.stock} />
+
+            <p className="text-lg leading-relaxed">{product.description}</p>
+
+            {product.tags.length > 0 && (
+              <ul className="flex flex-wrap gap-2" aria-label="Tags">
+                {product.tags.map((tag) => (
+                  <li
+                    key={tag}
+                    className="rounded-full border border-border-strong bg-surface-elevated px-4 py-1.5 text-sm"
+                  >
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <p className="flex items-center gap-3 text-sm">
+              <svg
+                aria-hidden
+                className="size-6 text-brand-700"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path
+                  d="M3 7h11v9H3V7Zm11 3h4l3 3v3h-7v-6ZM7 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm11 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              {product.shippingInformation}
+            </p>
+
+            <div className="mt-2 border-t border-border">
+              <Accordion title="Produktdetails" defaultOpen>
+                <dl className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-2 text-sm">
+                  <Detail label="Artikelnummer" value={product.sku} />
+                  <Detail label="Kategorie" value={category} />
+                  <Detail label="Gewicht" value={`${product.weight} g`} />
+                  <Detail
+                    label="Maße"
+                    value={`${product.dimensions.width} × ${product.dimensions.height} × ${product.dimensions.depth} cm`}
+                  />
+                  <Detail label="Mindestmenge" value={`${product.minimumOrderQuantity} Stück`} />
+                </dl>
+              </Accordion>
+              <Accordion title="Versand & Rückgabe">
+                <dl className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-2 text-sm">
+                  <Detail label="Versand" value={product.shippingInformation} />
+                  <Detail label="Garantie" value={product.warrantyInformation} />
+                  <Detail label="Rückgabe" value={product.returnPolicy} />
+                </dl>
+              </Accordion>
+            </div>
           </div>
-
-          <Availability status={product.availabilityStatus} stock={product.stock} />
-
-          <p className="leading-relaxed text-ink">{product.description}</p>
-
-          {product.tags.length > 0 && (
-            <ul className="flex flex-wrap gap-2" aria-label="Tags">
-              {product.tags.map((tag) => (
-                <li
-                  key={tag}
-                  className="rounded-full bg-surface-muted px-3 py-1 text-xs text-ink-muted"
-                >
-                  {tag}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-xl border border-border bg-surface p-4 text-sm">
-            <Detail label="Versand" value={product.shippingInformation} />
-            <Detail label="Garantie" value={product.warrantyInformation} />
-            <Detail label="Rückgabe" value={product.returnPolicy} />
-            <Detail label="Artikelnr." value={product.sku} />
-          </dl>
         </div>
       </div>
 
       {/* Streamt unabhängig vom Rest der Seite */}
       <Suspense fallback={<RelatedProductsSkeleton />}>
-        <RelatedProducts category={product.category} excludeId={product.id} />
+        <RelatedProducts
+          category={product.category}
+          categoryLabel={category}
+          categoryHref={categoryHref}
+          excludeId={product.id}
+        />
       </Suspense>
     </article>
+  );
+}
+
+function Accordion({
+  title,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <details open={defaultOpen} className="group border-b border-border">
+      <summary className="flex cursor-pointer items-center justify-between py-4 text-base font-semibold">
+        {title}
+        <span
+          aria-hidden
+          className="accordion-icon text-2xl font-light leading-none text-ink-muted transition"
+        >
+          +
+        </span>
+      </summary>
+      <div className="pb-5">{children}</div>
+    </details>
   );
 }
 
@@ -181,10 +250,12 @@ function Availability({
 }) {
   const info = AVAILABILITY[status] ?? AVAILABILITY["In Stock"];
   return (
-    <p className={`flex items-center gap-2 text-sm font-medium ${info.className}`}>
-      <span aria-hidden className="size-2 rounded-full bg-current" />
+    <p className="flex items-center gap-2.5 text-base font-medium">
+      <span aria-hidden className={`size-3 rounded-full bg-current ${info.className}`} />
       {info.label}
-      {stock > 0 && <span className="font-normal text-ink-muted">({stock} Stück)</span>}
+      {stock > 0 && (
+        <span className="text-sm font-normal text-ink-muted">({stock} Stück)</span>
+      )}
     </p>
   );
 }
@@ -197,11 +268,11 @@ interface BreadcrumbItem {
 function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
   return (
     <nav aria-label="Breadcrumb">
-      <ol className="flex flex-wrap items-center gap-1.5 text-sm text-ink-muted">
+      <ol className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
-            <li key={index} className="flex items-center gap-1.5">
+            <li key={index} className="flex items-center gap-2">
               {item.href && !isLast ? (
                 <Link href={item.href} className="transition hover:text-ink">
                   {item.label}

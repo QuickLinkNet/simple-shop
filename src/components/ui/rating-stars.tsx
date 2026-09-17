@@ -2,47 +2,71 @@ interface RatingStarsProps {
   rating: number;
   /** Anzahl Bewertungen, optional */
   count?: number;
-  size?: "sm" | "md";
+  /** "compact": ein Stern + Zahl (Card), "full": fünf Sterne (PDP) */
+  variant?: "compact" | "full";
 }
 
 const MAX = 5;
 
-export function RatingStars({ rating, count, size = "sm" }: RatingStarsProps) {
-  const rounded = Math.round(rating * 2) / 2;
+export function RatingStars({
+  rating,
+  count,
+  variant = "compact",
+}: RatingStarsProps) {
   const label = `${rating.toFixed(1)} von ${MAX} Sternen${
     count !== undefined ? `, ${count} Bewertungen` : ""
   }`;
+  const display = rating.toFixed(1).replace(".", ",");
+
+  if (variant === "compact") {
+    return (
+      <span
+        className="flex items-center gap-1 text-sm"
+        role="img"
+        aria-label={label}
+        title={label}
+      >
+        <Star fill={1} size={15} />
+        <span className="font-medium">{display}</span>
+        {count !== undefined && (
+          <span className="text-ink-muted">({count})</span>
+        )}
+      </span>
+    );
+  }
+
+  const rounded = Math.round(rating * 2) / 2;
 
   return (
-    <div
-      className={`flex items-center gap-1 ${size === "sm" ? "text-xs" : "text-sm"}`}
+    <span
+      className="flex items-center gap-2 text-sm"
       role="img"
       aria-label={label}
       title={label}
     >
-      <div className="flex text-amber-400" aria-hidden>
-        {Array.from({ length: MAX }, (_, i) => {
-          const fill = Math.min(Math.max(rounded - i, 0), 1);
-          return <Star key={i} fill={fill} size={size} />;
-        })}
-      </div>
-      <span className="font-medium text-ink">{rating.toFixed(1)}</span>
+      <span className="flex gap-0.5">
+        {Array.from({ length: MAX }, (_, i) => (
+          <Star key={i} fill={Math.min(Math.max(rounded - i, 0), 1)} size={20} />
+        ))}
+      </span>
+      <span className="font-semibold">{display}</span>
       {count !== undefined && (
-        <span className="text-ink-muted">({count})</span>
+        <span className="text-ink-muted">
+          · {count} {count === 1 ? "Bewertung" : "Bewertungen"}
+        </span>
       )}
-    </div>
+    </span>
   );
 }
 
-function Star({ fill, size }: { fill: number; size: "sm" | "md" }) {
-  const id = `star-${Math.round(fill * 100)}`;
-  const px = size === "sm" ? 14 : 18;
+function Star({ fill, size }: { fill: number; size: number }) {
+  const id = `star-fill-${Math.round(fill * 100)}`;
   return (
-    <svg width={px} height={px} viewBox="0 0 24 24">
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden className="text-star">
       <defs>
         <linearGradient id={id}>
           <stop offset={`${fill * 100}%`} stopColor="currentColor" />
-          <stop offset={`${fill * 100}%`} stopColor="#d1d5db" />
+          <stop offset={`${fill * 100}%`} stopColor="#d8d3c8" />
         </linearGradient>
       </defs>
       <path

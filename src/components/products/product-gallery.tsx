@@ -23,7 +23,7 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
   return (
     <div className="flex flex-col gap-3">
       <div
-        className="relative aspect-square overflow-hidden rounded-xl border border-border bg-surface"
+        className="relative aspect-square overflow-hidden rounded-2xl bg-surface-muted"
         onKeyDown={(e) => {
           if (!hasMultiple) return;
           if (e.key === "ArrowRight") go(index + 1);
@@ -40,7 +40,7 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
           fill
           priority={index === 0}
           sizes="(min-width: 1024px) 55vw, 100vw"
-          className="object-contain p-6"
+          className="object-contain p-8"
         />
 
         {hasMultiple && (
@@ -62,10 +62,10 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
                   onClick={() => setIndex(i)}
                   aria-label={`Bild ${i + 1} anzeigen`}
                   aria-pressed={isActive}
-                  className={`relative size-16 overflow-hidden rounded-lg border-2 bg-surface transition sm:size-20 ${
+                  className={`relative size-18 overflow-hidden rounded-xl border-2 bg-surface-muted transition sm:size-24 ${
                     isActive
-                      ? "border-brand-600"
-                      : "border-border hover:border-brand-500"
+                      ? "border-brand-700"
+                      : "border-transparent hover:border-border-strong"
                   }`}
                 >
                   <Image
@@ -73,7 +73,7 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
                     alt=""
                     fill
                     sizes="80px"
-                    className="object-contain p-1"
+                    className="object-contain p-2"
                   />
                 </button>
               </li>
@@ -98,8 +98,8 @@ function GalleryArrow({
       type="button"
       onClick={onClick}
       aria-label={isPrev ? "Vorheriges Bild" : "Nächstes Bild"}
-      className={`absolute top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full border border-border bg-surface/90 text-lg shadow-card transition hover:bg-surface ${
-        isPrev ? "left-3" : "right-3"
+      className={`absolute top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-surface-elevated/95 text-xl shadow-float transition hover:bg-surface-elevated ${
+        isPrev ? "left-4" : "right-4"
       }`}
     >
       <span aria-hidden>{isPrev ? "‹" : "›"}</span>

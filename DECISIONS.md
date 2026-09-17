@@ -65,7 +65,7 @@ Wäre ein echter 404-Status Pflicht (z. B. für Crawler-Budget), gäbe es zwei W
 ## 7. Bewusst weggelassen
 
 - **Kein State-Management / Data-Fetching-Library** (SWR, React Query): Server Components + URL-State reichen aus.
-- **Kein Warenkorb-Button**: nicht gefordert; ein Button ohne Funktion wäre irreführend.
+- **Kein Warenkorb / keine Wunschliste**: In den Screendesigns vorhanden, aber nicht Teil der Aufgabe; Buttons ohne Funktion wären irreführend.
 - **Keine Tests**: Zeitbudget. Sinnvolle Kandidaten wären `search-params.ts` (Unit), `pageRange()` in der Pagination (Unit) und ein Playwright-Smoke-Test für Deep-Links.
 - **Preise in USD**: DummyJSON liefert USD-Werte; eine Umrechnung wäre fachlich falsch. Formatierung erfolgt mit `Intl.NumberFormat("de-DE")`.
 
@@ -73,4 +73,5 @@ Wäre ein echter 404-Status Pflicht (z. B. für Crawler-Budget), gäbe es zwei W
 
 - TypeScript `strict`, Route-Typen (`PageProps<"/products/[id]">`) werden von Next generiert (`next typegen`).
 - ESLint mit `eslint-config-next` (core-web-vitals + TypeScript).
-- Tailwind CSS 4 mit Design-Tokens in `globals.css` (`@theme`), keine Komponentenbibliothek.
+- Tailwind CSS 4 mit Design-Tokens in `globals.css` (`@theme`), abgeleitet aus den Screendesigns in `screendesigns/`. Keine Komponentenbibliothek.
+- Schrift: Outfit via `next/font/google` (self-hosted, kein Layout-Shift).

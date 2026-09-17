@@ -12,12 +12,12 @@ export function Price({ price, discountPercentage, size = "sm" }: PriceProps) {
   const original = originalPrice(price, discountPercentage);
 
   return (
-    <div className="flex flex-wrap items-baseline gap-x-2">
+    <span className="flex flex-wrap items-baseline gap-x-2">
       <span
         className={
           size === "lg"
-            ? "text-3xl font-semibold tracking-tight"
-            : "text-base font-semibold"
+            ? "text-4xl font-bold tracking-tight"
+            : "text-lg font-bold tracking-tight"
         }
       >
         {formatPrice(price)}
@@ -25,7 +25,7 @@ export function Price({ price, discountPercentage, size = "sm" }: PriceProps) {
       {hasDiscount && (
         <>
           <span
-            className={`text-ink-muted line-through ${size === "lg" ? "text-base" : "text-xs"}`}
+            className={`text-ink-muted line-through ${size === "lg" ? "text-lg" : "text-sm"}`}
           >
             {formatPrice(original)}
           </span>
@@ -34,16 +34,24 @@ export function Price({ price, discountPercentage, size = "sm" }: PriceProps) {
           </span>
         </>
       )}
-    </div>
+    </span>
   );
 }
 
-export function DiscountBadge({ percentage }: { percentage: number }) {
+export function DiscountBadge({
+  percentage,
+  size = "sm",
+}: {
+  percentage: number;
+  size?: "sm" | "lg";
+}) {
   if (percentage < 1) return null;
   return (
     <span
       aria-hidden
-      className="rounded-md bg-danger px-1.5 py-0.5 text-xs font-semibold text-white"
+      className={`inline-flex items-center rounded-full bg-accent font-semibold text-surface-elevated ${
+        size === "lg" ? "px-3.5 py-1.5 text-base" : "px-2.5 py-1 text-xs"
+      }`}
     >
       -{Math.round(percentage)}%
     </span>

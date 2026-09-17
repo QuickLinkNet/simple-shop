@@ -4,10 +4,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 
 const DEBOUNCE_MS = 300;
+const LISTING_PATH = "/products";
 
 /**
- * Suchfeld: schreibt `q` debounced in die URL, setzt `page` zurück.
- * Client Component, weil sie auf Eingaben reagiert und URL-State hält.
+ * Suchfeld im Header.
+ * - Auf der PLP: schreibt `q` debounced in die URL (Live-Suche), setzt `page` zurück.
+ * - Auf allen anderen Seiten: navigiert per Enter zur PLP mit `?q=`.
  */
 export function SearchBox() {
   const router = useRouter();
@@ -16,7 +18,8 @@ export function SearchBox() {
   const [isPending, startTransition] = useTransition();
   const inputId = useId();
 
-  const urlQuery = searchParams.get("q") ?? "";
+  const isListing = pathname === LISTING_PATH;
+  const urlQuery = isListing ? (searchParams.get("q") ?? "") : "";
   const [value, setValue] = useState(urlQuery);
   const lastPushed = useRef(urlQuery);
 
@@ -28,7 +31,9 @@ export function SearchBox() {
     }
   }, [urlQuery]);
 
+  // Live-Suche nur auf der PLP
   useEffect(() => {
+    if (!isListing) return;
     const trimmed = value.trim();
     if (trimmed === lastPushed.current) return;
 
@@ -41,21 +46,32 @@ export function SearchBox() {
 
       startTransition(() => {
         const qs = params.toString();
-        router.replace(qs ? `${pathname}?${qs}` : pathname);
+        router.replace(qs ? `${LISTING_PATH}?${qs}` : LISTING_PATH);
       });
     }, DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
-  }, [value, searchParams, pathname, router]);
+  }, [value, isListing, searchParams, router]);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = value.trim();
+    lastPushed.current = trimmed;
+    startTransition(() => {
+      router.push(
+        trimmed ? `${LISTING_PATH}?q=${encodeURIComponent(trimmed)}` : LISTING_PATH,
+      );
+    });
+  };
 
   return (
-    <div className="relative w-full sm:max-w-sm">
+    <form role="search" onSubmit={handleSubmit} className="relative w-full">
       <label htmlFor={inputId} className="sr-only">
         Produkte suchen
       </label>
       <svg
         aria-hidden
-        className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
+        className="pointer-events-none absolute left-4 top-1/2 size-4.5 -translate-y-1/2 text-ink-muted"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -67,19 +83,20 @@ export function SearchBox() {
       <input
         id={inputId}
         type="search"
+        name="q"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Produkte suchen …"
+        placeholder="Was suchst du heute?"
         autoComplete="off"
-        className="h-10 w-full rounded-lg border border-border bg-surface pl-9 pr-9 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+        className="h-11 w-full rounded-full border border-border-strong bg-surface-elevated pl-11 pr-10 text-sm text-ink outline-none transition placeholder:text-ink-muted focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
       />
       {isPending && (
         <span
           role="status"
           aria-label="Suche läuft"
-          className="absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin rounded-full border-2 border-brand-100 border-t-brand-600"
+          className="absolute right-4 top-1/2 size-4 -translate-y-1/2 animate-spin rounded-full border-2 border-brand-100 border-t-brand-600"
         />
       )}
-    </div>
+    </form>
   );
 }
