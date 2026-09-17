@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Suspense } from "react";
 import { CategoryFilter } from "@/components/products/category-filter";
 import { Pagination } from "@/components/products/pagination";
@@ -98,15 +99,18 @@ function Hero({ dict }: { dict: Dictionary }) {
           {dict.plp.heroCta}
         </a>
       </div>
-      <div
-        aria-hidden
-        className="relative hidden min-h-64 bg-gradient-to-br from-brand-100 via-cream to-surface-muted lg:block"
-      >
-        <span className="absolute right-6 top-6 rounded-md border border-brand-700/40 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-brand-800">
+      <div aria-hidden className="relative h-48 sm:h-64 lg:h-auto">
+        <Image
+          src="/hero.jpg"
+          alt=""
+          fill
+          priority
+          sizes="(min-width: 1024px) 45vw, 100vw"
+          className="object-cover"
+        />
+        <span className="absolute right-4 top-4 rounded-md border border-brand-700/40 bg-surface-elevated/90 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-brand-800 backdrop-blur-sm sm:right-6 sm:top-6">
           {dict.plp.heroBadge}
         </span>
-        <span className="absolute bottom-8 left-10 size-40 rounded-full bg-brand-700/10 blur-2xl" />
-        <span className="absolute right-16 top-20 size-56 rounded-full bg-accent/10 blur-3xl" />
       </div>
     </section>
   );
